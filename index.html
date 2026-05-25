@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomieJohnson (HJ) — Неоновый космос</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: radial-gradient(ellipse at center, #0a0a2a 0%, #000000 100%);
+            color: #00ff41;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* ЕБАНЫЙ СНЕГ */
+        .snow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        .snowflake {
+            position: absolute;
+            color: #00ff41;
+            font-size: 1.5em;
+            opacity: 0.7;
+            animation: fall linear infinite;
+            text-shadow: 0 0 5px #00ff41, 0 0 10px #ff003c;
+        }
+        
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        /* КОСМИЧЕСКИЙ ГЛИТЧ */
+        @keyframes cosmicGlitch {
+            0% { text-shadow: -2px 0 #ff003c, 2px 0 #00ff41, 0 0 20px #ff003c; }
+            50% { text-shadow: 2px 0 #ff003c, -2px 0 #00ff41, 0 0 30px #00ff41; }
+            100% { text-shadow: -2px 0 #ff003c, 2px 0 #00ff41, 0 0 20px #ff003c; }
+        }
+        
+        .app { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 1; }
+        
+        /* ЛЕВАЯ ПАНЕЛЬ - НЕОНОВАЯ */
+        .nav-panel {
+            width: 280px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 2px solid #ff003c;
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ff003c;
+            margin-bottom: 10px;
+            animation: cosmicGlitch 0.5s infinite;
+        }
+        
+        .logo span { color: #ff003c; }
+        
+        .nav-btn {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid #ff003c;
+            color: #00ff41;
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: #ff003c;
+            color: white;
+            box-shadow: 0 0 15px #ff003c;
+            transform: translateX(5px);
+        }
+        
+        .current-user-mini {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #ff003c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        
+        .mini-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff003c, #00ff41);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            overflow: hidden;
+        }
+        
+        .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* ОСНОВНОЙ КОНТЕНТ */
+        .room-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .room { display: none; animation: fadeIn 0.3s; }
+        .room.active-room { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* ===== ПОСТЫ С ПЛЮСИКОМ ===== */
+        .floating-post-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff003c, #00ff41);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #ff003c, 0 0 40px #00ff41;
+            transition: all 0.3s;
+            z-index: 100;
+            animation: float 2s infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating-post-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px #ff003c, 0 0 60px #00ff41;
+        }
+        
+        /* МОДАЛЬНОЕ ОКНО ДЛЯ ПОСТА (КАСТОМНОЕ) */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .custom-modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2a);
+            border: 2px solid #ff003c;
+            border-radius: 20px;
+            padding: 30px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 0 50px rgba(255, 0, 60, 0.5);
+        }
+        
+        .modal-content h3 {
+            color: #ff003c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-content textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #ff003c;
+            color: #00ff41;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .custom-btn {
+            background: #ff003c;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .custom-btn:hover { background: #00ff41; color: black; }
+        
+        /* ОСТАЛЬНЫЕ СТИЛИ */
+        .post {
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(5px);
+            border-left: 4px solid #ff003c;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        
+        .post-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff003c, #00ff41);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #ff003c;
+            margin: 0 auto;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .profile-action-btn {
+            background: linear-gradient(135deg, #ff003c, #ff0066);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .profile-action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff003c;
+        }
+        
+        .dm-room { display: flex; gap: 20px; height: calc(100vh - 40px); }
+        .dm-friends-list {
+            width: 300px;
+            background: rgba(17, 17, 17, 0.8);
+            border: 1px solid #ff003c;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+        .dm-friend-item {
+            padding: 15px;
+            border-bottom: 1px solid #222;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dm-friend-item:hover { background: rgba(255, 0, 60, 0.2); }
+        .dm-chat {
+            flex: 1;
+            background: rgba(17, 17, 17, 0.8);
+            border: 1px solid #ff003c;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .dm-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .dm-message {
+            background: #1a1a1a;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            max-width: 70%;
+        }
+        .dm-message.own {
+            margin-left: auto;
+            background: #ff003c;
+        }
+        .dm-input-area {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #333;
+        }
+        .dm-input-area input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #ff003c;
+            color: #00ff41;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="snow" id="snowContainer"></div>
+
+<div class="app">
+    <div class="nav-panel">
+        <div class="logo">HOMIE<span>JOHNSON</span></div>
+        <button class="nav-btn active" data-room="feed">📰 ЛЕНТА</button>
+        <button class="nav-btn" data-room="profile">👤 МОЙ ПРОФИЛЬ</button>
+        <button class="nav-btn" data-room="dm">💬 ЛИЧКА</button>
+        <div class="current-user-mini" id="miniProfileBtn">
+            <div class="mini-avatar" id="miniAvatar">👤</div>
+            <div id="miniUsername">Gothbreach</div>
+        </div>
+    </div>
+    
+    <div class="room-container">
+        <div class="room active-room" id="feedRoom">
+            <div id="postsList"></div>
+        </div>
+        
+        <div class="room" id="profileRoom">
+            <div style="max-width:800px;margin:0 auto">
+                <div class="profile-header" style="background:rgba(17,17,17,0.8);border-radius:20px;padding:30px;text-align:center">
+                    <div class="profile-avatar" id="profileAvatarBtn">
+                        <div id="profileAvatarDisplay" style="font-size:64px">👤</div>
+                    </div>
+                    <h2 id="profileUsernameDisplay" style="color:#ff003c;margin-top:15px">Gothbreach</h2>
+                    <div class="profile-actions">
+                        <div class="profile-action-btn" id="changeAvatarBtn">🖼️ СМЕНИТЬ АВАТАР</div>
+                        <div class="profile-action-btn" id="addStoryBtn">📸 ДОБАВИТЬ СТОРИС</div>
+                    </div>
+                    <div class="profile-stats" style="display:flex;justify-content:center;gap:40px;margin:20px 0">
+                        <div><div class="profile-stat-value" id="profilePostCount" style="font-size:24px;color:#ff003c">0</div><div>Постов</div></div>
+                        <div><div class="profile-stat-value" id="profileFriendsCount" style="font-size:24px;color:#ff003c">0</div><div>Друзей</div></div>
+                        <div><div class="profile-stat-value" id="ProfileRanasCount" style="font-size:24px;color:#ff003c">0</div><div>Ран</div></div>
+                    </div>
+                    <button onclick="editProfileUsername()" class="custom-btn">✏️ СМЕНИТЬ НИК</button>
+                </div>
+                <div id="profilePostsList" style="margin-top:20px"></div>
+            </div>
+        </div>
+        
+        <div class="room" id="dmRoom">
+            <div class="dm-room">
+                <div class="dm-friends-list" id="dmFriendsList"></div>
+                <div class="dm-chat">
+                    <div class="dm-chat-header" style="padding:15px;border-bottom:1px solid #333" id="dmChatHeader">Выбери друга</div>
+                    <div class="dm-messages" id="dmMessagesList"></div>
+                    <div class="dm-input-area" id="dmInputArea" style="display:none">
+                        <input type="text" id="dmMessageInput" placeholder="Сообщение...">
+                        <button id="dmSendBtn" class="custom-btn">📨</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- КАСТОМНОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ПОСТА -->
+<div class="custom-modal" id="postModal">
+    <div class="modal-content">
+        <h3>🔊 НОВЫЙ КРИК</h3>
+        <textarea id="modalPostInput" rows="4" placeholder="Чё орёшь?"></textarea>
+        <div id="modalMediaPreview" style="margin-bottom:15px"></div>
+        <div style="display:flex;gap:10px;margin-bottom:15px">
+            <button id="modalImageBtn" class="custom-btn">🖼️ КАРТИНКА</button>
+            <button id="modalVideoBtn" class="custom-btn">🎥 ВИДЕО</button>
+        </div>
+        <div class="modal-buttons">
+            <button id="modalPostBtn" class="custom-btn">КРИКНУТЬ</button>
+            <button id="modalCloseBtn" class="custom-btn" style="background:#333">ЗАКРЫТЬ</button>
+        </div>
+        <input type="file" id="modalImageInput" accept="image/*" style="display:none">
+        <input type="file" id="modalVideoInput" accept="video/*" style="display:none">
+    </div>
+</div>
+
+<!-- МОДАЛ СТОРИС -->
+<div class="custom-modal" id="storyModal">
+    <div class="modal-content" style="text-align:center">
+        <h3>📸 ДОБАВИТЬ СТОРИС</h3>
+        <div style="margin:20px 0">
+            <button id="storyImageBtn" class="custom-btn">🖼️ КАРТИНКА</button>
+            <button id="storyVideoBtn" class="custom-btn">🎥 ВИДЕО</button>
+        </div>
+        <button id="storyCloseBtn" class="custom-btn" style="background:#333">ОТМЕНА</button>
+        <input type="file" id="storyImageInput" accept="image/*" style="display:none">
+        <input type="file" id="storyVideoInput" accept="video/*" style="display:none">
+    </div>
+</div>
+
+<script>
+    // СНЕГ
+    function createSnow() {
+        const container = document.getElementById('snowContainer');
+        for (let i = 0; i < 100; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.innerHTML = ['❄️', '✨', '⭐', '💫', '⚡'][Math.floor(Math.random() * 5)];
+            snowflake.style.left = Math.random() * 100 + '%';
+            snowflake.style.animationDuration = Math.random() * 5 + 3 + 's';
+            snowflake.style.animationDelay = Math.random() * 5 + 's';
+            snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
+            snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+            container.appendChild(snowflake);
+        }
+    }
+    createSnow();
+    
+    // ДАННЫЕ
+    let currentUser = {
+        id: "user_" + Date.now(),
+        username: "Gothbreach",
+        avatar: null,
+        friends: [],
+        friendRequests: [],
+        dms: {}
+    };
+    let posts = [];
+    let stories = [];
+    let likedPosts = new Set();
+    let selectedDmFriend = null;
+    let currentRoom = "feed";
+    let modalPendingMedia = null;
+    let modalPendingMediaType = null;
+    
+    function loadData() {
+        const savedUser = localStorage.getItem('hj_user');
+        const savedPosts = localStorage.getItem('hj_posts');
+        const savedStories = localStorage.getItem('hj_stories');
+        const savedLiked = localStorage.getItem('hj_liked');
+        if (savedUser) currentUser = JSON.parse(savedUser);
+        if (savedPosts) posts = JSON.parse(savedPosts);
+        if (savedStories) {
+            stories = JSON.parse(savedStories);
+            const dayAgo = Date.now() - 86400000;
+            stories = stories.filter(s => s.timestamp > dayAgo);
+        }
+        if (savedLiked) likedPosts = new Set(JSON.parse(savedLiked));
+        if (!currentUser.dms) currentUser.dms = {};
+        if (!currentUser.friends) currentUser.friends = [];
+        if (!currentUser.friendRequests) currentUser.friendRequests = [];
+        saveData();
+        updateAllUI();
+    }
+    
+    function saveData() {
+        localStorage.setItem('hj_user', JSON.stringify(currentUser));
+        localStorage.setItem('hj_posts', JSON.stringify(posts));
+        localStorage.setItem('hj_stories', JSON.stringify(stories));
+        localStorage.setItem('hj_liked', JSON.stringify([...likedPosts]));
+    }
+    
+    // НАВИГАЦИЯ
+    function switchRoom(roomId) {
+        currentRoom = roomId;
+        document.querySelectorAll('.room').forEach(r => r.classList.remove('active-room'));
+        document.getElementById(`${roomId}Room`).classList.add('active-room');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-room="${roomId}"]`).classList.add('active');
+        if (roomId === 'dm') renderDMRoom();
+        if (roomId === 'profile') renderProfileRoom();
+    }
+    
+    // ПОСТЫ ЧЕРЕЗ ПЛЮСИК
+    function openPostModal() {
+        document.getElementById('postModal').classList.add('active');
+    }
+    
+    document.getElementById('modalImageBtn').onclick = () => document.getElementById('modalImageInput').click();
+    document.getElementById('modalVideoBtn').onclick = () => document.getElementById('modalVideoInput').click();
+    
+    document.getElementById('modalImageInput').onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                modalPendingMedia = ev.target.result;
+                modalPendingMediaType = 'image';
+                document.getElementById('modalMediaPreview').innerHTML = `<img src="${ev.target.result}" style="max-width:100%;max-height:150px"><button onclick="clearModalMedia()" class="custom-btn" style="margin-top:5px">❌</button>`;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+    
+    document.getElementById('modalVideoInput').onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                modalPendingMedia = ev.target.result;
+                modalPendingMediaType = 'video';
+                document.getElementById('modalMediaPreview').innerHTML = `<video src="${ev.target.result}" controls style="max-width:100%;max-height:150px"></video><button onclick="clearModalMedia()" class="custom-btn" style="margin-top:5px">❌</button>`;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+    
+    window.clearModalMedia = function() {
+        modalPendingMedia = null;
+        modalPendingMediaType = null;
+        document.getElementById('modalMediaPreview').innerHTML = '';
+    };
+    
+    function createPostFromModal() {
+        const input = document.getElementById('modalPostInput');
+        const content = input.value.trim();
+        if (!content && !modalPendingMedia) { alert('НАПИШИ ХОТЬ ЧТО-ТО'); return; }
+        posts.unshift({
+            id: Date.now(),
+            userId: currentUser.id,
+            username: currentUser.username,
+            avatar: currentUser.avatar,
+            content: content,
+            media: modalPendingMedia,
+            mediaType: modalPendingMediaType,
+            timestamp: new Date().toLocaleString(),
+            ranas: 0,
+            reposts: 0
+        });
+        clearModalMedia();
+        input.value = '';
+        saveData();
+        renderFeed();
+        document.getElementById('postModal').classList.remove('active');
+    }
+    
+    // АВАТАР И СТОРИС (БЕЗ ГУГЛОВСКИХ ОКОН)
+    function changeAvatar() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    currentUser.avatar = ev.target.result;
+                    saveData();
+                    updateAllUI();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        };
+        input.click();
+    }
+    
+    function addStory() {
+        document.getElementById('storyModal').classList.add('active');
+    }
+    
+    document.getElementById('storyImageBtn').onclick = () => document.getElementById('storyImageInput').click();
+    document.getElementById('storyVideoBtn').onclick = () => document.getElementById('storyVideoInput').click();
+    
+    document.getElementById('storyImageInput').onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                stories.unshift({
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    username: currentUser.username,
+                    avatar: currentUser.avatar,
+                    media: ev.target.result,
+                    mediaType: 'image',
+                    timestamp: Date.now()
+                });
+                const dayAgo = Date.now() - 86400000;
+                stories = stories.filter(s => s.timestamp > dayAgo);
+                saveData();
+                document.getElementById('storyModal').classList.remove('active');
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+    
+    document.getElementById('storyVideoInput').onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                stories.unshift({
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    username: currentUser.username,
+                    avatar: currentUser.avatar,
+                    media: ev.target.result,
+                    mediaType: 'video',
+                    timestamp: Date.now()
+                });
+                const dayAgo = Date.now() - 86400000;
+                stories = stories.filter(s => s.timestamp > dayAgo);
+                saveData();
+                document.getElementById('storyModal').classList.remove('active');
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+    
+    function showUserStories(userId, username) {
+        const userStories = stories.filter(s => s.userId === userId && (Date.now() - s.timestamp) < 86400000);
+        if (userStories.length === 0) { alert(`У ${username} нет свежих сторис`); return; }
+        
+        let index = 0;
+        function show() {
+            const story = userStories[index];
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.background = 'rgba(0,0,0,0.95)';
+            modal.style.zIndex = '2000';
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.onclick = () => { modal.remove(); if(window.storyTimeout) clearTimeout(window.storyTimeout); };
+            const content = document.createElement('div');
+            content.style.maxWidth = '90%';
+            content.style.maxHeight = '90%';
+            if (story.mediaType === 'image') {
+                content.innerHTML = `<img src="${story.media}" style="max-width:100%;max-height:80vh;border-radius:10px"><div style="color:white;text-align:center;margin-top:10px">${story.username}</div>`;
+            } else {
+                content.innerHTML = `<video src="${story.media}" controls autoplay style="max-width:100%;max-height:80vh"></video><div style="color:white;text-align:center;margin-top:10px">${story.username}</div>`;
+            }
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            if (window.storyTimeout) clearTimeout(window.storyTimeout);
+            window.storyTimeout = setTimeout(() => {
+                modal.remove();
+                if (index + 1 < userStories.length) { index++; show(); }
+            }, 5000);
+        }
+        show();
+    }
+    
+    // ОСТАЛЬНЫЕ ФУНКЦИИ
+    function addRana(postId) {
+        if (likedPosts.has(postId)) { alert("ХУЙ ТЕБЕ, А НЕ ДЮП!"); return; }
+        const post = posts.find(p => p.id === postId);
+        if (post) { post.ranas++; likedPosts.add(postId); saveData(); renderFeed(); }
+    }
+    
+    function repostPost(postId) {
+        const original = posts.find(p => p.id === postId);
+        if (original) {
+            original.reposts++;
+            posts.unshift({
+                id: Date.now(),
+                userId: currentUser.id,
+                username: currentUser.username,
+                avatar: currentUser.avatar,
+                content: `🪒 РЕПОСТ: ${original.content.substring(0, 80)}`,
+                media: original.media,
+                mediaType: original.mediaType,
+                timestamp: new Date().toLocaleString(),
+                ranas: 0,
+                reposts: 0
+            });
+            saveData();
+            renderFeed();
+        }
+    }
+    
+    function searchUser() {
+        const username = prompt("Никнейм для добавления:");
+        if (!username || username === currentUser.username) return;
+        if (currentUser.friends.includes(username)) { alert("Уже друг"); return; }
+        if (currentUser.friendRequests.includes(username)) { alert("Заявка отправлена"); return; }
+        currentUser.friendRequests.push(username);
+        saveData();
+        renderDMRoom();
+    }
+    
+    function acceptFriend(username) {
+        currentUser.friendRequests = currentUser.friendRequests.filter(u => u !== username);
+        if (!currentUser.friends.includes(username)) {
+            currentUser.friends.push(username);
+            if (!currentUser.dms[username]) currentUser.dms[username] = [];
+        }
+        saveData();
+        renderDMRoom();
+        renderProfileRoom();
+    }
+    
+    function rejectFriend(username) {
+        currentUser.friendRequests = currentUser.friendRequests.filter(u => u !== username);
+        saveData();
+        renderDMRoom();
+    }
+    
+    function openDm(friendName) {
+        selectedDmFriend = friendName;
+        if (!currentUser.dms[friendName]) currentUser.dms[friendName] = [];
+        renderDmChat();
+    }
+    
+    function sendDm() {
+        if (!selectedDmFriend) { alert("Выбери друга"); return; }
+        const input = document.getElementById('dmMessageInput');
+        const text = input.value.trim();
+        if (!text) return;
+        currentUser.dms[selectedDmFriend].push({
+            from: currentUser.username,
+            text: text,
+            time: new Date().toLocaleTimeString()
+        });
+        input.value = '';
+        saveData();
+        renderDmChat();
+    }
+    
+    function editProfileUsername() {
+        const newName = prompt("Новый ник:", currentUser.username);
+        if (newName && newName.trim()) {
+            currentUser.username = newName.trim();
+            saveData();
+            updateAllUI();
+        }
+    }
+    
+    // ОТРИСОВКА
+    function renderFeed() {
+        const container = document.getElementById('postsList');
+        if (posts.length === 0) { container.innerHTML = '<div style="text-align:center;padding:50px;color:#666;">❄️ ПОМОЙКА ПУСТА ❄️</div>'; return; }
+        container.innerHTML = posts.map(post => `
+            <div class="post">
+                <div class="post-header" onclick="showUserStories('${post.userId}', '${escapeHtml(post.username)}')">
+                    ${post.avatar ? `<img src="${post.avatar}" class="post-avatar" style="width:45px;height:45px;object-fit:cover">` : `<div class="post-avatar">👤</div>`}
+                    <div><div class="post-username">${escapeHtml(post.username)}</div><div class="post-time">${escapeHtml(post.timestamp)}</div></div>
+                </div>
+                <div class="post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
+                ${post.media ? `<div class="post-media">${post.mediaType === 'image' ? `<img src="${post.media}">` : `<video src="${post.media}" controls></video>`}</div>` : ''}
+                <div class="post-actions">
+                    <button class="action-btn" onclick="addRana(${post.id})">💉 РАНА (${post.ranas})</button>
+                    <button class="action-btn" onclick="repostPost(${post.id})">🪒 БРИТВА (${post.reposts})</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function renderProfileRoom() {
+        document.getElementById('profileUsernameDisplay').innerText = currentUser.username;
+        const avatarDiv = document.getElementById('profileAvatarDisplay');
+        if (currentUser.avatar) {
+            avatarDiv.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover">`;
+        } else {
+            avatarDiv.innerHTML = '👤';
+        }
+        const userPosts = posts.filter(p => p.userId === currentUser.id);
+        const userRanas = userPosts.reduce((sum, p) => sum + p.ranas, 0);
+        document.getElementById('profilePostCount').innerText = userPosts.length;
+        document.getElementById('profileFriendsCount').innerText = currentUser.friends.length;
+        document.getElementById('ProfileRanasCount').innerText = userRanas;
+        
+        const container = document.getElementById('profilePostsList');
+        if (userPosts.length === 0) { container.innerHTML = '<div style="color:#666;text-align:center">Нет постов</div>'; return; }
+        container.innerHTML = userPosts.slice(0,5).map(post => `
+            <div class="post" style="margin-bottom:15px">
+                <div class="post-content">${escapeHtml(post.content.substring(0, 100))}</div>
+                <div style="font-size:11px;color:#666">💉 ${post.ranas} | 🪒 ${post.reposts}</div>
+            </div>
+        `).join('');
+    }
+    
+    function renderDMRoom() {
+        const friendsListDiv = document.getElementById('dmFriendsList');
+        let html = `<div style="padding:10px"><button onclick="searchUser()" class="custom-btn" style="width:100%">➕ НАЙТИ ДРУГА</button></div>`;
+        if (currentUser.friendRequests.length > 0) {
+            html += `<div style="padding:10px;border-bottom:1px solid #ff003c"><strong>📨 ЗАЯВКИ:</strong>`;
+            currentUser.friendRequests.forEach(r => {
+                html += `<div style="display:flex;justify-content:space-between;padding:8px"><span>${escapeHtml(r)}</span><div><button onclick="acceptFriend('${escapeHtml(r)}')" class="custom-btn" style="padding:2px 8px">✅</button><button onclick="rejectFriend('${escapeHtml(r)}')" class="custom-btn" style="padding:2px 8px">❌</button></div></div>`;
+            });
+            html += `</div>`;
+        }
+        html += `<div style="padding:10px"><strong>👥 ДРУЗЬЯ (${currentUser.friends.length}) :</strong></div>`;
+        currentUser.friends.forEach(f => {
+            html += `<div class="dm-friend-item" onclick="openDm('${escapeHtml(f)}')">
+                <div style="width:40px;height:40px;background:linear-gradient(135deg,#ff003c,#00ff41);border-radius:50%;display:flex;align-items:center;justify-content:center">👤</div>
+                <div>${escapeHtml(f)}</div>
+            </div>`;
+        });
+        friendsListDiv.innerHTML = html;
+        if (selectedDmFriend) renderDmChat();
+    }
+    
+    function renderDmChat() {
+        const chatHeader = document.getElementById('dmChatHeader');
+        const messagesDiv = document.getElementById('dmMessagesList');
+        const inputArea = document.getElementById('dmInputArea');
+        if (!selectedDmFriend) {
+            chatHeader.innerText = "Выбери друга";
+            messagesDiv.innerHTML = '<div style="text-align:center;color:#666;padding:40px">👈 Нажми на друга</div>';
+            inputArea.style.display = 'none';
+            return;
+        }
+        chatHeader.innerText = `💬 ${selectedDmFriend}`;
+        inputArea.style.display = 'flex';
+        const msgs = currentUser.dms[selectedDmFriend] || [];
+        if (msgs.length === 0) {
+            messagesDiv.innerHTML = '<div style="text-align:center;color:#666;padding:40px">Нет сообщений</div>';
+        } else {
+            messagesDiv.innerHTML = msgs.map(msg => `
+                <div class="dm-message ${msg.from === currentUser.username ? 'own' : ''}">
+                    <div>${escapeHtml(msg.text)}</div>
+                    <div style="font-size:10px;color:#888">${msg.time}</div>
+                </div>
+            `).join('');
+        }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function renderMiniProfile() {
+        const miniAvatar = document.getElementById('miniAvatar');
+        if (currentUser.avatar) {
+            miniAvatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover">`;
+        } else {
+            miniAvatar.innerHTML = '👤';
+        }
+        document.getElementById('miniUsername').innerText = currentUser.username;
+    }
+    
+    function updateAllUI() {
+        renderMiniProfile();
+        renderFeed();
+        if (currentRoom === 'profile') renderProfileRoom();
+        if (currentRoom === 'dm') renderDMRoom();
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ЗАПУСК
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchRoom(btn.dataset.room));
+        });
+        document.getElementById('miniProfileBtn').addEventListener('click', () => switchRoom('profile'));
+        document.getElementById('changeAvatarBtn').addEventListener('click', changeAvatar);
+        document.getElementById('addStoryBtn').addEventListener('click', addStory);
+        document.getElementById('dmSendBtn').addEventListener('click', sendDm);
+        document.getElementById('dmMessageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDm(); });
+        document.getElementById('modalPostBtn').addEventListener('click', createPostFromModal);
+        document.getElementById('modalCloseBtn').addEventListener('click', () => document.getElementById('postModal').classList.remove('active'));
+        document.getElementById('storyCloseBtn').addEventListener('click', () => document.getElementById('storyModal').classList.remove('active'));
+        
+        // ПЛАВАЮЩАЯ КНОПКА ДЛЯ ПОСТА
+        const floatBtn = document.createElement('div');
+        floatBtn.className = 'floating-post-btn';
+        floatBtn.innerHTML = '+';
+        floatBtn.onclick = openPostModal;
+        document.body.appendChild(floatBtn);
+    });
+</script>
+</body>
+</html>
