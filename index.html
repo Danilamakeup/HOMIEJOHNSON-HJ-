@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>HomieJohnson — Джонсон Видеос</title>
+    <title>HomieJohnson — Invincible Edit Анимации</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,7 @@
             --text: #ffffff;
             --text-secondary: #888888;
             --accent: #ff003c;
-            --accent-glow: rgba(255, 0, 60, 0.2);
+            --accent-glow: rgba(255, 0, 60, 0.3);
             --gradient: linear-gradient(135deg, #ff003c, #00ff41);
             --input-bg: #1a1a1a;
         }
@@ -47,543 +47,32 @@
             width: 100%;
         }
 
-        /* ========== МОДАЛКИ (КАСТОМНЫЕ) ========== */
-        .custom-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
+        /* ========== АНИМАЦИИ INVINCIBLE STYLE ========== */
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: -2px 0 #ff003c, 2px 0 #00ff41; }
+            20% { transform: translate(-2px, 2px); text-shadow: -2px 0 #ff003c; }
+            40% { transform: translate(-2px, -2px); text-shadow: 2px 0 #00ff41; }
+            60% { transform: translate(2px, 2px); text-shadow: -2px 0 #ff003c; }
+            80% { transform: translate(2px, -2px); text-shadow: 2px 0 #00ff41; }
+            100% { transform: translate(0); text-shadow: -2px 0 #ff003c, 2px 0 #00ff41; }
         }
 
-        .custom-modal.active {
-            display: flex;
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+            20%, 40%, 60%, 80% { transform: translateX(3px); }
         }
 
-        .modal-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 28px 24px;
-            width: 90%;
-            max-width: 340px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(255,0,60,0.3);
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; text-shadow: 0 0 20px #ff003c; }
+            100% { transform: scale(1); opacity: 0.7; }
         }
 
-        .modal-card h3 {
-            font-size: 22px;
-            margin-bottom: 20px;
-            color: var(--accent);
-        }
-
-        .modal-card input, .modal-card textarea {
-            width: 100%;
-            padding: 14px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            color: var(--text);
-            font-size: 16px;
-            margin-bottom: 16px;
-        }
-
-        .modal-card textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            background: var(--accent);
-            border: none;
-            border-radius: 30px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .modal-btn-outline {
-            background: transparent;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-        }
-
-        /* ========== ТИКТОК (JOHNSON VIDEOS) С ПАУЗОЙ ========== */
-        .tiktok-wrapper {
-            height: 100%;
-            overflow: hidden;
-            position: relative;
-            border-radius: 24px;
-            background: #000;
-        }
-
-        .tiktok-slider {
-            height: 100%;
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-
-        .tiktok-slide {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            background: #000;
-        }
-
-        .tiktok-video {
-            width: 100%;
-            height: auto;
-            max-height: 75vh;
-            object-fit: contain;
-            cursor: pointer;
-        }
-
-        .tiktok-overlay {
-            position: absolute;
-            bottom: 16px;
-            left: 16px;
-            right: 70px;
-            z-index: 5;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 12px;
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-        }
-
-        .tiktok-username {
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .tiktok-caption {
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .tiktok-actions {
-            position: absolute;
-            right: 12px;
-            bottom: 80px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 5;
-        }
-
-        .tiktok-action {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            background: rgba(0,0,0,0.5);
-            padding: 8px;
-            border-radius: 30px;
-            backdrop-filter: blur(4px);
-        }
-
-        .tiktok-action:active {
-            transform: scale(0.9);
-        }
-
-        .heart-active {
-            color: #ff003c;
-            text-shadow: 0 0 8px #ff003c;
-        }
-
-        .pause-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 48px;
-            background: rgba(0,0,0,0.6);
-            border-radius: 60px;
-            padding: 12px;
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .pause-indicator.show {
-            opacity: 1;
-        }
-
-        /* ========== НАВИГАЦИЯ ========== */
-        .top-bar {
-            background: var(--surface);
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-        }
-
-        .top-logo {
-            font-size: 20px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .top-icons {
-            display: flex;
-            gap: 16px;
-        }
-
-        .top-icon {
-            font-size: 22px;
-            cursor: pointer;
-            padding: 6px;
-        }
-
-        .main-content {
-            margin-top: 54px;
-            margin-bottom: 65px;
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-            height: calc(100vh - 119px);
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 12px;
-            border-top: 1px solid var(--border);
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 11px;
-            color: var(--text-secondary);
-            border-radius: 12px;
-        }
-
-        .nav-item.active {
-            color: var(--accent);
-        }
-
-        .nav-icon {
-            font-size: 24px;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active-page {
-            display: block;
-        }
-
-        /* ========== ПОСТЫ ========== */
-        .post-card {
-            background: var(--card);
-            border-radius: 20px;
-            margin-bottom: 12px;
-            padding: 14px;
-            border-left: 3px solid var(--accent);
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .post-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            font-size: 24px;
-        }
-
-        .post-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .post-username {
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .post-time {
-            font-size: 10px;
-            color: var(--text-secondary);
-        }
-
-        .post-content {
-            font-size: 14px;
-            margin: 10px 0;
-            line-height: 1.4;
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 20px;
-            margin-top: 12px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border);
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-        }
-
-        .action-btn:active {
-            background: var(--accent-glow);
-        }
-
-        /* ========== ПРОФИЛЬ ========== */
-        .profile-header {
-            background: var(--card);
-            border-radius: 24px;
-            padding: 24px;
-            text-align: center;
-            margin-bottom: 16px;
-        }
-
-        .profile-avatar-large {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            margin: 0 auto 12px;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .profile-avatar-large img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-stats {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin: 16px 0;
-        }
-
-        .stat-value {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .profile-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .profile-tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            background: var(--card);
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .profile-tab.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        /* ========== ЛИЧКА ========== */
-        .dm-friend-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px;
-            background: var(--card);
-            border-radius: 16px;
-            margin-bottom: 8px;
-            cursor: pointer;
-        }
-
-        .dm-chat-area {
-            background: var(--card);
-            border-radius: 20px;
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            height: 55vh;
-        }
-
-        .dm-messages-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-        }
-
-        .dm-message {
-            background: var(--surface);
-            padding: 8px 14px;
-            border-radius: 20px;
-            max-width: 75%;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .dm-message.own {
-            background: var(--accent);
-            color: white;
-            margin-left: auto;
-        }
-
-        .dm-input-area {
-            display: flex;
-            gap: 8px;
-            padding: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .dm-input-area input {
-            flex: 1;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 30px;
-        }
-
-        /* ========== НАСТРОЙКИ ========== */
-        .settings-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: var(--card);
-            border-radius: 16px;
-            margin-bottom: 8px;
-        }
-
-        .theme-switch {
-            width: 50px;
-            height: 28px;
-            background: var(--text-secondary);
-            border-radius: 30px;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .theme-switch.active {
-            background: var(--accent);
-        }
-
-        .theme-switch-knob {
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 3px;
-            transition: 0.2s;
-        }
-
-        .theme-switch.active .theme-switch-knob {
-            left: 23px;
-        }
-
-        .btn {
-            background: var(--accent);
-            border: none;
-            padding: 10px 20px;
-            color: white;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .fab {
-            position: fixed;
-            bottom: 75px;
-            right: 16px;
-            width: 52px;
-            height: 52px;
-            background: var(--gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            cursor: pointer;
-            z-index: 15;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        @keyframes fadeInUp {
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(50px);
             }
             to {
                 opacity: 1;
@@ -591,8 +80,203 @@
             }
         }
 
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes borderFlash {
+            0%, 100% { border-color: var(--border); box-shadow: 0 0 0px var(--accent); }
+            50% { border-color: #00ff41; box-shadow: 0 0 20px #00ff41; }
+        }
+
+        @keyframes heartExplode {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); text-shadow: 0 0 30px #ff003c; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes spinGlitch {
+            0% { transform: rotate(0deg) scale(1); filter: hue-rotate(0deg); }
+            50% { transform: rotate(180deg) scale(1.1); filter: hue-rotate(180deg); }
+            100% { transform: rotate(360deg) scale(1); filter: hue-rotate(360deg); }
+        }
+
+        .glitch-text {
+            animation: glitch 0.5s infinite;
+        }
+
+        /* Анимация появления элементов */
         .post-card {
-            animation: fadeInUp 0.3s ease;
+            animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .post-card:hover {
+            animation: shake 0.3s ease;
+        }
+
+        .tiktok-slide {
+            animation: fadeInScale 0.3s ease;
+        }
+
+        /* Анимация кнопок */
+        .btn, .modal-btn, .action-btn, .nav-item, .top-icon, .fab {
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .btn:active, .modal-btn:active, .action-btn:active, .fab:active {
+            transform: scale(0.92);
+            animation: pulse 0.2s ease;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+
+        /* Heart анимация при лайке */
+        .heart-animation {
+            position: fixed;
+            pointer-events: none;
+            font-size: 48px;
+            z-index: 9999;
+            animation: heartExplode 0.5s ease-out forwards;
+        }
+
+        /* Модалки с анимацией */
+        .custom-modal.active .modal-card {
+            animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        /* Индикатор паузы с анимацией */
+        .pause-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 80px;
+            padding: 16px;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.2s;
+            backdrop-filter: blur(8px);
+            border: 2px solid var(--accent);
+        }
+
+        .pause-indicator.show {
+            opacity: 1;
+            animation: pulse 0.3s ease;
+        }
+
+        /* Лента с анимацией */
+        .tiktok-slider {
+            height: 100%;
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+        }
+
+        /* Пульсирующий бордер у активного элемента */
+        .nav-item.active {
+            animation: borderFlash 1s infinite;
+        }
+
+        /* Анимация загрузки */
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .loading {
+            animation: loadingPulse 1s infinite;
+        }
+
+        /* FAB анимация */
+        .fab {
+            animation: slideUp 0.5s ease, pulse 2s infinite;
+        }
+
+        /* Топ бар анимация */
+        .top-bar {
+            animation: slideDown 0.4s ease;
+        }
+
+        /* Счетчики анимация при изменении */
+        .stat-value {
+            transition: all 0.2s;
+        }
+
+        .stat-value:active {
+            transform: scale(1.2);
+            color: #00ff41;
+        }
+
+        /* Анимация для аватара */
+        .post-avatar, .profile-avatar-large {
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .post-avatar:active, .profile-avatar-large:active {
+            transform: scale(0.95) rotate(5deg);
+        }
+
+        /* Глитч эффект при ховере на посты (на мобиле по клику) */
+        @keyframes glitchPost {
+            0% { transform: translate(0); }
+            25% { transform: translate(-2px, 1px); }
+            50% { transform: translate(2px, -1px); }
+            75% { transform: translate(-1px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        .post-card:active {
+            animation: glitchPost 0.15s ease;
+        }
+
+        /* Эффект ряби */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10);
+            opacity: 0;
+            transition: transform .3s, opacity .5s;
+        }
+
+        .ripple:active:after {
+            transform: scale(0);
+            opacity: 0.3;
+            transition: 0s;
         }
     </style>
 </head>
@@ -601,23 +285,23 @@
 <!-- МОДАЛКИ -->
 <div class="custom-modal" id="postModal">
     <div class="modal-card">
-        <h3>📝 Новый пост</h3>
+        <h3 class="glitch-text">📝 НОВЫЙ ПОСТ</h3>
         <textarea id="postContentInput" placeholder="Что думаешь?"></textarea>
         <div class="modal-buttons">
-            <button class="modal-btn" id="submitPostBtn">Опубликовать</button>
-            <button class="modal-btn modal-btn-outline" id="closePostModalBtn">Отмена</button>
+            <button class="modal-btn ripple" id="submitPostBtn">ОПУБЛИКОВАТЬ</button>
+            <button class="modal-btn modal-btn-outline ripple" id="closePostModalBtn">ОТМЕНА</button>
         </div>
     </div>
 </div>
 
 <div class="custom-modal" id="tiktokModal">
     <div class="modal-card">
-        <h3>🎵 Новый ТикТок</h3>
-        <div class="btn" id="selectVideoBtn" style="margin-bottom:12px">📹 Выбрать видео</div>
+        <h3 class="glitch-text">🎵 НОВЫЙ ТИКТОК</h3>
+        <div class="btn ripple" id="selectVideoBtn" style="margin-bottom:12px">📹 ВЫБРАТЬ ВИДЕО</div>
         <input type="text" id="tiktokCaptionInput" placeholder="Описание...">
         <div class="modal-buttons">
-            <button class="modal-btn" id="submitTiktokBtn">Залить</button>
-            <button class="modal-btn modal-btn-outline" id="closeTiktokModalBtn">Отмена</button>
+            <button class="modal-btn ripple" id="submitTiktokBtn">ЗАЛИТЬ</button>
+            <button class="modal-btn modal-btn-outline ripple" id="closeTiktokModalBtn">ОТМЕНА</button>
         </div>
     </div>
     <input type="file" id="tiktokFileInput" accept="video/*">
@@ -625,30 +309,30 @@
 
 <div class="custom-modal" id="editUsernameModal">
     <div class="modal-card">
-        <h3>✏️ Сменить ник</h3>
+        <h3 class="glitch-text">✏️ СМЕНИТЬ НИК</h3>
         <input type="text" id="newUsernameInput" placeholder="Новый никнейм">
         <div class="modal-buttons">
-            <button class="modal-btn" id="saveUsernameBtn">Сохранить</button>
-            <button class="modal-btn modal-btn-outline" id="closeUsernameModalBtn">Отмена</button>
+            <button class="modal-btn ripple" id="saveUsernameBtn">СОХРАНИТЬ</button>
+            <button class="modal-btn modal-btn-outline ripple" id="closeUsernameModalBtn">ОТМЕНА</button>
         </div>
     </div>
 </div>
 
 <div class="custom-modal" id="alertModal">
     <div class="modal-card">
-        <h3 id="alertTitle">⚠️</h3>
+        <h3 id="alertTitle" class="glitch-text">⚠️</h3>
         <p id="alertMessage" style="margin-bottom:20px"></p>
-        <button class="modal-btn" id="alertCloseBtn">Понятно</button>
+        <button class="modal-btn ripple" id="alertCloseBtn">ПОНЯТНО</button>
     </div>
 </div>
 
 <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
 <div class="app-container" style="display:flex; flex-direction:column; height:100vh">
     <div class="top-bar">
-        <div class="top-logo">🔥 HJ</div>
+        <div class="top-logo glitch-text">🔥 HJ — INVINCIBLE EDIT</div>
         <div class="top-icons">
-            <div class="top-icon" id="topProfileBtn">👤</div>
-            <div class="top-icon" id="topSettingsBtn">⚙️</div>
+            <div class="top-icon ripple" id="topProfileBtn">👤</div>
+            <div class="top-icon ripple" id="topSettingsBtn">⚙️</div>
         </div>
     </div>
 
@@ -656,6 +340,7 @@
         <div class="page" id="tiktokPage">
             <div class="tiktok-wrapper" id="tiktokWrapper">
                 <div class="tiktok-slider" id="tiktokSlider"></div>
+                <div class="pause-indicator" id="pauseIndicator">⏸️</div>
             </div>
         </div>
 
@@ -677,13 +362,13 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" data-page="tiktok"><span class="nav-icon">🎵</span><span>Джонсон Видеос</span></div>
-        <div class="nav-item" data-page="feed"><span class="nav-icon">📰</span><span>Лента</span></div>
-        <div class="nav-item" data-page="dm"><span class="nav-icon">💬</span><span>Личка</span></div>
+        <div class="nav-item ripple" data-page="tiktok"><span class="nav-icon">🎵</span><span>ДЖОНСОН ВИДЕОС</span></div>
+        <div class="nav-item ripple" data-page="feed"><span class="nav-icon">📰</span><span>ЛЕНТА</span></div>
+        <div class="nav-item ripple" data-page="dm"><span class="nav-icon">💬</span><span>ЛИЧКА</span></div>
     </div>
 </div>
 
-<div class="fab" id="fabBtn">+</div>
+<div class="fab ripple" id="fabBtn">+</div>
 
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
 
@@ -752,6 +437,17 @@
         document.getElementById('alertModal').classList.add('active');
     }
 
+    // Анимация сердечка при лайке
+    function showHeartAnimation(x, y) {
+        const heart = document.createElement('div');
+        heart.className = 'heart-animation';
+        heart.innerHTML = '❤️';
+        heart.style.left = x + 'px';
+        heart.style.top = y + 'px';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 500);
+    }
+
     // ========== ПОСТЫ ==========
     function openPostModal() { document.getElementById('postModal').classList.add('active'); }
     function closePostModal() { document.getElementById('postModal').classList.remove('active'); document.getElementById('postContentInput').value = ''; }
@@ -775,10 +471,17 @@
         switchPage('feed');
     }
 
-    function likePost(id) {
+    function likePost(id, event) {
         const p = posts.find(x => x.id == id);
         if (likedPosts.has(id)) { likedPosts.delete(id); p.likes--; }
-        else { likedPosts.add(id); p.likes++; }
+        else { 
+            likedPosts.add(id); 
+            p.likes++;
+            if (event) {
+                const rect = event.target.getBoundingClientRect();
+                showHeartAnimation(rect.left + rect.width/2, rect.top + rect.height/2);
+            }
+        }
         saveAppData();
         renderFeed();
     }
@@ -786,33 +489,29 @@
     function renderFeed() {
         const container = document.getElementById('postsFeed');
         if (!container) return;
-        if (!posts.length) { container.innerHTML = '<div style="text-align:center;padding:40px"><button class="btn" id="emptyFeedBtn">📝 Первый пост</button></div>'; document.getElementById('emptyFeedBtn')?.addEventListener('click', openPostModal); return; }
+        if (!posts.length) { container.innerHTML = '<div style="text-align:center;padding:40px"><button class="btn ripple" id="emptyFeedBtn">📝 ПЕРВЫЙ ПОСТ</button></div>'; document.getElementById('emptyFeedBtn')?.addEventListener('click', openPostModal); return; }
         container.innerHTML = posts.map(p => `
             <div class="post-card">
                 <div class="post-header">
-                    <div class="post-avatar">${p.avatar ? `<img src="${p.avatar}">` : '👤'}</div>
+                    <div class="post-avatar ripple">${p.avatar ? `<img src="${p.avatar}">` : '👤'}</div>
                     <div><div class="post-username">${escapeHtml(p.username)}</div><div class="post-time">${p.timestamp}</div></div>
                 </div>
                 <div class="post-content">${escapeHtml(p.content)}</div>
                 <div class="post-actions">
-                    <button class="action-btn" onclick="likePost(${p.id})">❤️ ${p.likes}</button>
+                    <button class="action-btn ripple" onclick="likePost(${p.id}, event)">❤️ ${p.likes}</button>
                 </div>
             </div>
         `).join('');
     }
 
-    // ========== ТИКТОК С ПАУЗОЙ И НОРМАЛЬНЫМ РАЗМЕРОМ ==========
+    // ========== ТИКТОК ==========
     function pauseAllVideos() {
-        document.querySelectorAll('.tiktok-video').forEach(video => {
-            video.pause();
-        });
+        document.querySelectorAll('.tiktok-video').forEach(video => { video.pause(); });
     }
 
     function playCurrentVideo() {
         const currentVideo = document.getElementById(`tiktokVideo_${tiktoks[currentTiktokIndex]?.id}`);
-        if (currentVideo) {
-            currentVideo.play().catch(e => console.log('play error', e));
-        }
+        if (currentVideo) { currentVideo.play().catch(e => console.log()); }
     }
 
     function toggleVideoPause(video, event) {
@@ -820,18 +519,10 @@
         const indicator = document.getElementById('pauseIndicator');
         if (video.paused) {
             video.play();
-            if (indicator) {
-                indicator.innerHTML = '▶️';
-                indicator.classList.add('show');
-                setTimeout(() => indicator.classList.remove('show'), 500);
-            }
+            if (indicator) { indicator.innerHTML = '▶️'; indicator.classList.add('show'); setTimeout(() => indicator.classList.remove('show'), 500); }
         } else {
             video.pause();
-            if (indicator) {
-                indicator.innerHTML = '⏸️';
-                indicator.classList.add('show');
-                setTimeout(() => indicator.classList.remove('show'), 500);
-            }
+            if (indicator) { indicator.innerHTML = '⏸️'; indicator.classList.add('show'); setTimeout(() => indicator.classList.remove('show'), 500); }
         }
     }
 
@@ -839,7 +530,7 @@
         const container = document.getElementById('tiktokSlider');
         if (!container) return;
         if (!tiktoks.length) { 
-            container.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center"><button class="btn" id="emptyTiktokBtn">🎵 Добавить видео</button></div>'; 
+            container.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center"><button class="btn ripple" id="emptyTiktokBtn">🎵 ДОБАВИТЬ ВИДЕО</button></div>'; 
             document.getElementById('emptyTiktokBtn')?.addEventListener('click', openTiktokModal);
             return;
         }
@@ -852,7 +543,7 @@
                     <div class="tiktok-caption">${escapeHtml(t.caption || '')}</div>
                 </div>
                 <div class="tiktok-actions">
-                    <div class="tiktok-action" onclick="event.stopPropagation(); likeTiktok(${t.id})">
+                    <div class="tiktok-action ripple" onclick="event.stopPropagation(); likeTiktok(${t.id}, event)">
                         <div class="tiktok-action-icon ${likedTiktoks.has(t.id) ? 'heart-active' : ''}" style="font-size:28px">${likedTiktoks.has(t.id) ? '❤️' : '♡'}</div>
                         <div>${t.likes || 0}</div>
                     </div>
@@ -865,16 +556,12 @@
         setTimeout(() => {
             pauseAllVideos();
             playCurrentVideo();
-            attachVideoClickHandlers();
+            document.querySelectorAll('.tiktok-video').forEach(video => {
+                video.onclick = (e) => toggleVideoPause(video, e);
+            });
         }, 100);
         
         setupSwipe();
-    }
-
-    function attachVideoClickHandlers() {
-        document.querySelectorAll('.tiktok-video').forEach(video => {
-            video.onclick = (e) => toggleVideoPause(video, e);
-        });
     }
 
     function updateSliderPosition() {
@@ -894,36 +581,31 @@
         
         if (!freshWrapper) return;
         
-        freshWrapper.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
-        
-        freshWrapper.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        });
-        
+        freshWrapper.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; });
+        freshWrapper.addEventListener('touchmove', (e) => { e.preventDefault(); });
         freshWrapper.addEventListener('touchend', (e) => {
             const diff = e.changedTouches[0].clientY - touchStartY;
             if (Math.abs(diff) < 50) return;
-            
-            if (diff > 0 && currentTiktokIndex > 0) {
-                currentTiktokIndex--;
-            } else if (diff < 0 && currentTiktokIndex < tiktoks.length - 1) {
-                currentTiktokIndex++;
-            } else {
-                return;
-            }
-            
+            if (diff > 0 && currentTiktokIndex > 0) { currentTiktokIndex--; }
+            else if (diff < 0 && currentTiktokIndex < tiktoks.length - 1) { currentTiktokIndex++; }
+            else { return; }
             updateSliderPosition();
             pauseAllVideos();
             playCurrentVideo();
         });
     }
 
-    function likeTiktok(id) {
+    function likeTiktok(id, event) {
         const t = tiktoks.find(x => x.id == id);
         if (likedTiktoks.has(id)) { likedTiktoks.delete(id); t.likes--; }
-        else { likedTiktoks.add(id); t.likes++; }
+        else { 
+            likedTiktoks.add(id); 
+            t.likes++;
+            if (event) {
+                const rect = event.target.getBoundingClientRect();
+                showHeartAnimation(rect.left + rect.width/2, rect.top + rect.height/2);
+            }
+        }
         saveAppData();
         renderTiktokFeed();
     }
@@ -935,7 +617,7 @@
     document.getElementById('tiktokFileInput').onchange = (e) => {
         if (e.target.files[0]) {
             const reader = new FileReader();
-            reader.onload = (ev) => { window.pendingTiktok = ev.target.result; showAlert("Видео готово"); };
+            reader.onload = (ev) => { window.pendingTiktok = ev.target.result; showAlert("Видео готово!"); };
             reader.readAsDataURL(e.target.files[0]);
         }
     };
@@ -966,20 +648,20 @@
         const container = document.getElementById('profileContent');
         container.innerHTML = `
             <div class="profile-header">
-                <div class="profile-avatar-large" id="profileAvatarClick">
+                <div class="profile-avatar-large ripple" id="profileAvatarClick">
                     ${user.avatar ? `<img src="${user.avatar}">` : '👤'}
                 </div>
-                <h3>${escapeHtml(user.username)}</h3>
+                <h3 class="glitch-text">${escapeHtml(user.username)}</h3>
                 <div class="profile-stats">
-                    <div><div class="stat-value">${tiktoks.filter(t => t.userId === user.email).length}</div><div class="stat-label">Видео</div></div>
-                    <div><div class="stat-value">${posts.filter(p => p.userId === user.email).length}</div><div class="stat-label">Постов</div></div>
-                    <div><div class="stat-value">${user.friends?.length || 0}</div><div class="stat-label">Друзей</div></div>
+                    <div><div class="stat-value">${tiktoks.filter(t => t.userId === user.email).length}</div><div class="stat-label">ВИДЕО</div></div>
+                    <div><div class="stat-value">${posts.filter(p => p.userId === user.email).length}</div><div class="stat-label">ПОСТОВ</div></div>
+                    <div><div class="stat-value">${user.friends?.length || 0}</div><div class="stat-label">ДРУЗЕЙ</div></div>
                 </div>
-                <button class="btn" id="editProfileUsernameBtn">✏️ Сменить ник</button>
+                <button class="btn ripple" id="editProfileUsernameBtn">✏️ СМЕНИТЬ НИК</button>
             </div>
             <div class="profile-tabs">
-                <div class="profile-tab ${currentProfileTab === 'posts' ? 'active' : ''}" data-tab="posts">📝 Мои посты</div>
-                <div class="profile-tab ${currentProfileTab === 'tiktoks' ? 'active' : ''}" data-tab="tiktoks">🎵 Мои видео</div>
+                <div class="profile-tab ${currentProfileTab === 'posts' ? 'active' : ''} ripple" data-tab="posts">📝 МОИ ПОСТЫ</div>
+                <div class="profile-tab ${currentProfileTab === 'tiktoks' ? 'active' : ''} ripple" data-tab="tiktoks">🎵 МОИ ВИДЕО</div>
             </div>
             <div id="profileTabContent"></div>
         `;
@@ -1004,7 +686,7 @@
         
         if (currentProfileTab === 'posts') {
             const userPosts = posts.filter(p => p.userId === user.email);
-            if (!userPosts.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">📭 Нет постов</div>'; return; }
+            if (!userPosts.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">📭 НЕТ ПОСТОВ</div>'; return; }
             container.innerHTML = userPosts.map(p => `
                 <div class="post-card">
                     <div class="post-content">${escapeHtml(p.content)}</div>
@@ -1013,9 +695,9 @@
             `).join('');
         } else {
             const userTiktoks = tiktoks.filter(t => t.userId === user.email);
-            if (!userTiktoks.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">🎵 Нет видео</div>'; return; }
+            if (!userTiktoks.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">🎵 НЕТ ВИДЕО</div>'; return; }
             container.innerHTML = userTiktoks.map(t => `
-                <div style="background:var(--card);border-radius:16px;margin-bottom:12px;padding:12px;display:flex;gap:12px;align-items:center">
+                <div style="background:var(--card);border-radius:16px;margin-bottom:12px;padding:12px;display:flex;gap:12px;align-items:center;animation:slideUp 0.3s ease">
                     <video src="${t.videoUrl}" style="width:70px;height:90px;border-radius:12px;object-fit:cover"></video>
                     <div><div>${escapeHtml(t.caption || 'без описания')}</div><div style="font-size:11px;color:var(--text-secondary)">❤️ ${t.likes}</div></div>
                 </div>
@@ -1061,25 +743,25 @@
                 <div class="dm-messages-list" id="dmMessagesList"></div>
                 <div class="dm-input-area">
                     <input type="text" id="dmMessageInput" placeholder="Сообщение...">
-                    <button class="btn" id="dmSendBtn">📨</button>
+                    <button class="btn ripple" id="dmSendBtn">📨</button>
                 </div>
             </div>
         `;
         
         const friendsDiv = document.getElementById('dmFriendsList');
-        let html = `<button class="btn" style="width:100%;margin-bottom:8px" id="searchFriendBtn">➕ Найти друга</button>`;
+        let html = `<button class="btn ripple" style="width:100%;margin-bottom:8px" id="searchFriendBtn">➕ НАЙТИ ДРУГА</button>`;
         
         if (user.friendRequests?.length) {
-            html += `<div style="padding:8px;background:var(--card);border-radius:16px;margin-bottom:8px"><strong>📨 Заявки:</strong>`;
+            html += `<div style="padding:8px;background:var(--card);border-radius:16px;margin-bottom:8px"><strong>📨 ЗАЯВКИ:</strong>`;
             user.friendRequests.forEach(r => {
-                html += `<div style="display:flex;justify-content:space-between;padding:8px"><span>${escapeHtml(r)}</span><div><button class="btn" style="padding:4px 12px" onclick="acceptFriend('${escapeHtml(r)}')">✅</button><button class="btn" style="padding:4px 12px" onclick="rejectFriend('${escapeHtml(r)}')">❌</button></div></div>`;
+                html += `<div style="display:flex;justify-content:space-between;padding:8px"><span>${escapeHtml(r)}</span><div><button class="btn ripple" style="padding:4px 12px" onclick="acceptFriend('${escapeHtml(r)}')">✅</button><button class="btn ripple" style="padding:4px 12px" onclick="rejectFriend('${escapeHtml(r)}')">❌</button></div></div>`;
             });
             html += `</div>`;
         }
         
-        html += `<div style="padding:8px"><strong>👥 Друзья (${user.friends?.length || 0})</strong></div>`;
+        html += `<div style="padding:8px"><strong>👥 ДРУЗЬЯ (${user.friends?.length || 0})</strong></div>`;
         (user.friends || []).forEach(f => {
-            html += `<div class="dm-friend-item" onclick="openDm('${escapeHtml(f)}')"><div class="post-avatar" style="width:40px;height:40px">👤</div><div>${escapeHtml(f)}</div></div>`;
+            html += `<div class="dm-friend-item ripple" onclick="openDm('${escapeHtml(f)}')"><div class="post-avatar" style="width:40px;height:40px">👤</div><div>${escapeHtml(f)}</div></div>`;
         });
         friendsDiv.innerHTML = html;
         
@@ -1141,12 +823,12 @@
         const user = getCurrentUser();
         const messagesDiv = document.getElementById('dmMessagesList');
         if (!selectedDmFriend) {
-            if (messagesDiv) messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px">Выбери друга</div>';
+            if (messagesDiv) messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px">ВЫБЕРИ ДРУГА</div>';
             return;
         }
         const msgs = user.dms?.[selectedDmFriend] || [];
         if (!msgs.length) {
-            if (messagesDiv) messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px">Нет сообщений</div>';
+            if (messagesDiv) messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px">НЕТ СООБЩЕНИЙ</div>';
         } else {
             if (messagesDiv) messagesDiv.innerHTML = msgs.map(m => `<div class="dm-message ${m.from === user.username ? 'own' : ''}"><div>${escapeHtml(m.text)}</div><div style="font-size:10px;opacity:0.7">${m.time}</div></div>`).join('');
         }
@@ -1160,17 +842,17 @@
         container.innerHTML = `
             <div class="settings-item">
                 <span>👤 ${escapeHtml(user.username)}</span>
-                <button class="btn btn-outline" id="settingsEditUsernameBtn" style="padding:6px 12px">Изменить</button>
+                <button class="btn btn-outline ripple" id="settingsEditUsernameBtn" style="padding:6px 12px">ИЗМЕНИТЬ</button>
             </div>
             <div class="settings-item">
-                <span>🌙 Темная тема</span>
+                <span>🌙 ТЕМНАЯ ТЕМА</span>
                 <div class="theme-switch ${currentTheme === 'dark' ? 'active' : ''}" id="themeSwitchBtn">
                     <div class="theme-switch-knob"></div>
                 </div>
             </div>
             <div class="settings-item">
-                <span>🚪 Выйти</span>
-                <button class="btn" id="logoutBtn" style="background:#ff003c;padding:6px 12px">Выход</button>
+                <span>🚪 ВЫЙТИ</span>
+                <button class="btn ripple" id="logoutBtn" style="background:#ff003c;padding:6px 12px">ВЫХОД</button>
             </div>
         `;
         document.getElementById('settingsEditUsernameBtn')?.addEventListener('click', () => document.getElementById('editUsernameModal').classList.add('active'));
@@ -1211,12 +893,12 @@
 
     // ========== АВТОРИЗАЦИЯ ==========
     function showAuthScreen() {
-        const email = prompt("Email для входа/регистрации:");
+        const email = prompt("EMAIL ДЛЯ ВХОДА/РЕГИСТРАЦИИ:");
         if (!email) return;
-        const username = prompt("Логин:");
+        const username = prompt("ЛОГИН:");
         if (!username) return;
-        const password = prompt("Пароль (мин 6 символов):");
-        if (!password || password.length < 6) { alert("Пароль минимум 6"); showAuthScreen(); return; }
+        const password = prompt("ПАРОЛЬ (МИН 6 СИМВОЛОВ):");
+        if (!password || password.length < 6) { alert("ПАРОЛЬ МИНИМУМ 6"); showAuthScreen(); return; }
         
         if (users[email]) {
             const err = login(email, password);
@@ -1274,6 +956,11 @@
         
         document.querySelectorAll('.nav-item').forEach(el => {
             el.addEventListener('click', () => switchPage(el.dataset.page));
+        });
+        
+        // Добавляем ripple эффект на все кнопки
+        document.querySelectorAll('.btn, .modal-btn, .action-btn, .nav-item, .top-icon, .fab, .post-avatar, .profile-tab').forEach(el => {
+            el.classList.add('ripple');
         });
     });
 </script>
