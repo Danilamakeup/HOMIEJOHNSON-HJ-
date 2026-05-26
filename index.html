@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>HomieJohnson — Регистрация с 2FA</title>
+    <title>HomieJohnson — Кастомная соцсеть</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-        }
-
-        :root {
-            --transition: all 0.2s ease;
         }
 
         body.theme-dark {
@@ -24,8 +20,9 @@
             --text: #ffffff;
             --text-secondary: #888888;
             --accent: #ff003c;
-            --input-bg: #1a1a1a;
+            --accent-glow: rgba(255, 0, 60, 0.2);
             --gradient: linear-gradient(135deg, #ff003c, #00ff41);
+            --input-bg: #1a1a1a;
         }
 
         body.theme-light {
@@ -36,8 +33,8 @@
             --text: #1a1a1a;
             --text-secondary: #65676b;
             --accent: #ff003c;
-            --input-bg: #f0f0f0;
             --gradient: linear-gradient(135deg, #ff003c, #e600ff);
+            --input-bg: #f0f0f0;
         }
 
         body {
@@ -50,125 +47,155 @@
             width: 100%;
         }
 
-        /* АВТОРИЗАЦИЯ */
-        .auth-screen {
+        /* ========== МОДАЛКИ (КАСТОМНЫЕ, НЕ ГУГЛ) ========== */
+        .custom-modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
             justify-content: center;
-            padding: 20px;
-            overflow-y: auto;
+            align-items: center;
         }
 
-        .auth-screen.hidden {
-            display: none;
+        .custom-modal.active {
+            display: flex;
         }
 
-        .auth-card {
+        .modal-card {
             background: var(--card);
-            border-radius: 32px;
-            padding: 32px 24px;
-            width: 100%;
-            max-width: 400px;
             border: 1px solid var(--border);
-        }
-
-        .auth-logo {
-            font-size: 32px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            border-radius: 28px;
+            padding: 28px 24px;
+            width: 90%;
+            max-width: 340px;
             text-align: center;
-            margin-bottom: 24px;
+            box-shadow: 0 0 40px rgba(255,0,60,0.3);
         }
 
-        .auth-input {
+        .modal-card h3 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .modal-card input, .modal-card textarea {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px;
             background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 16px;
             color: var(--text);
             font-size: 16px;
-            margin-bottom: 12px;
-            outline: none;
+            margin-bottom: 16px;
         }
 
-        .auth-input:focus {
-            border-color: #00ff41;
+        .modal-card textarea {
+            min-height: 100px;
+            resize: vertical;
         }
 
-        .auth-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--gradient);
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
             margin-top: 8px;
         }
 
-        .auth-switch {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-secondary);
-        }
-
-        .auth-switch span {
-            color: var(--accent);
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--accent);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
         }
 
-        .error-msg {
-            color: #ff003c;
-            font-size: 12px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        /* КОД ПОДТВЕРЖДЕНИЯ */
-        .code-inputs {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .code-digit {
-            width: 50px;
-            height: 60px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            background: var(--input-bg);
-            border: 2px solid var(--border);
-            border-radius: 12px;
+        .modal-btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
             color: var(--accent);
         }
 
-        /* ОСНОВНОЕ ПРИЛОЖЕНИЕ */
-        .app-container {
-            display: none;
-            height: 100vh;
-            width: 100vw;
-            flex-direction: column;
+        /* ========== ТИКТОК С АНИМАЦИЕЙ ========== */
+        .tiktok-wrapper {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
         }
 
-        .app-container.active {
+        .tiktok-slider {
+            height: 100%;
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .tiktok-slide {
+            height: 100%;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background: #000;
         }
 
+        .tiktok-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .tiktok-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 16px;
+            right: 70px;
+            z-index: 5;
+        }
+
+        .tiktok-username {
+            font-weight: bold;
+            font-size: 15px;
+            text-shadow: 0 1px 3px black;
+        }
+
+        .tiktok-caption {
+            font-size: 13px;
+            text-shadow: 0 1px 3px black;
+        }
+
+        .tiktok-actions {
+            position: absolute;
+            right: 12px;
+            bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 5;
+        }
+
+        .tiktok-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .tiktok-action:active {
+            transform: scale(0.9);
+        }
+
+        .heart-active {
+            color: #ff003c;
+            text-shadow: 0 0 8px #ff003c;
+        }
+
+        /* ========== НАВИГАЦИЯ ========== */
         .top-bar {
             background: var(--surface);
             padding: 12px 16px;
@@ -180,12 +207,12 @@
             top: 0;
             left: 0;
             right: 0;
-            z-index: 10;
+            z-index: 100;
         }
 
         .top-logo {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 800;
             background: var(--gradient);
             -webkit-background-clip: text;
             background-clip: text;
@@ -209,7 +236,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 12px;
-            -webkit-overflow-scrolling: touch;
+            height: calc(100vh - 119px);
         }
 
         .bottom-nav {
@@ -223,7 +250,7 @@
             justify-content: space-around;
             padding: 8px 12px;
             border-top: 1px solid var(--border);
-            z-index: 10;
+            z-index: 100;
         }
 
         .nav-item {
@@ -233,7 +260,7 @@
             gap: 4px;
             padding: 8px 12px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             border-radius: 12px;
         }
@@ -254,10 +281,10 @@
             display: block;
         }
 
-        /* КАРТОЧКИ */
+        /* ========== ПОСТЫ ========== */
         .post-card {
             background: var(--card);
-            border-radius: 16px;
+            border-radius: 20px;
             margin-bottom: 12px;
             padding: 14px;
             border-left: 3px solid var(--accent);
@@ -300,7 +327,8 @@
 
         .post-content {
             font-size: 14px;
-            margin: 8px 0;
+            margin: 10px 0;
+            line-height: 1.4;
         }
 
         .post-actions {
@@ -317,70 +345,21 @@
             color: var(--text-secondary);
             cursor: pointer;
             padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .tiktok-container {
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 12px;
-            position: relative;
-        }
-
-        .tiktok-video {
-            width: 100%;
-            max-height: 70vh;
-            object-fit: contain;
-        }
-
-        .tiktok-overlay {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            right: 70px;
-        }
-
-        .tiktok-username {
-            font-weight: bold;
-            text-shadow: 0 1px 3px black;
-        }
-
-        .tiktok-actions {
-            position: absolute;
-            right: 8px;
-            bottom: 60px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .tiktok-action {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .heart-active {
-            color: #ff003c;
-        }
-
-        .btn {
-            background: var(--accent);
-            border: none;
-            padding: 10px 20px;
-            color: white;
             border-radius: 30px;
-            cursor: pointer;
             font-size: 13px;
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--accent);
-            color: var(--accent);
+        .action-btn:active {
+            background: var(--accent-glow);
+        }
+
+        /* ========== ПРОФИЛЬ ========== */
+        .profile-header {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
         }
 
         .profile-avatar-large {
@@ -397,33 +376,67 @@
             cursor: pointer;
         }
 
+        .profile-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .profile-stats {
             display: flex;
             justify-content: center;
-            gap: 28px;
+            gap: 32px;
             margin: 16px 0;
         }
 
         .stat-value {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             color: var(--accent);
         }
 
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .profile-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .profile-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: var(--card);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .profile-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* ========== ЛИЧКА ========== */
         .dm-friend-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px;
+            padding: 14px;
             background: var(--card);
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 8px;
             cursor: pointer;
         }
 
         .dm-chat-area {
             background: var(--card);
-            border-radius: 16px;
+            border-radius: 20px;
             margin-top: 12px;
             display: flex;
             flex-direction: column;
@@ -438,10 +451,11 @@
 
         .dm-message {
             background: var(--surface);
-            padding: 8px 12px;
-            border-radius: 18px;
+            padding: 8px 14px;
+            border-radius: 20px;
             max-width: 75%;
             margin-bottom: 8px;
+            font-size: 13px;
         }
 
         .dm-message.own {
@@ -462,17 +476,18 @@
             background: var(--input-bg);
             border: 1px solid var(--border);
             color: var(--text);
-            padding: 10px;
-            border-radius: 25px;
+            padding: 12px;
+            border-radius: 30px;
         }
 
+        /* ========== НАСТРОЙКИ ========== */
         .settings-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px;
             background: var(--card);
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 8px;
         }
 
@@ -504,6 +519,16 @@
             left: 23px;
         }
 
+        .btn {
+            background: var(--accent);
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
         .fab {
             position: fixed;
             bottom: 75px;
@@ -518,93 +543,78 @@
             font-size: 28px;
             cursor: pointer;
             z-index: 15;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--card);
-            border: 1px solid var(--accent);
-            border-radius: 24px;
-            padding: 24px;
-            width: 320px;
-            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         input[type="file"] {
             display: none;
         }
+
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-card, .tiktok-slide {
+            animation: fadeInUp 0.3s ease;
+        }
     </style>
 </head>
 <body class="theme-dark">
 
-<!-- ЭКРАН ЛОГИНА -->
-<div class="auth-screen" id="loginScreen">
-    <div class="auth-card">
-        <div class="auth-logo">🔥 HJ</div>
-        <div id="loginError" class="error-msg"></div>
-        <input type="email" id="loginEmail" class="auth-input" placeholder="Почта">
-        <input type="password" id="loginPassword" class="auth-input" placeholder="Пароль">
-        <button class="auth-btn" id="loginBtn">ВОЙТИ</button>
-        <div class="auth-switch">
-            Нет аккаунта? <span id="showRegBtn">Зарегистрироваться</span>
+<!-- КАСТОМНЫЕ МОДАЛКИ -->
+<div class="custom-modal" id="postModal">
+    <div class="modal-card">
+        <h3>📝 Новый пост</h3>
+        <textarea id="postContentInput" placeholder="Что думаешь?"></textarea>
+        <div class="modal-buttons">
+            <button class="modal-btn" id="submitPostBtn">Опубликовать</button>
+            <button class="modal-btn modal-btn-outline" id="closePostModalBtn">Отмена</button>
         </div>
     </div>
 </div>
 
-<!-- ЭКРАН РЕГИСТРАЦИИ -->
-<div class="auth-screen hidden" id="regScreen">
-    <div class="auth-card">
-        <div class="auth-logo">🔥 HJ Регистрация</div>
-        <div id="regError" class="error-msg"></div>
-        <input type="email" id="regEmail" class="auth-input" placeholder="Почта">
-        <input type="text" id="regUsername" class="auth-input" placeholder="Логин (от 3 символов)">
-        <input type="password" id="regPassword" class="auth-input" placeholder="Пароль (минимум 6 символов)">
-        <button class="auth-btn" id="sendCodeBtn">ОТПРАВИТЬ КОД НА ПОЧТУ</button>
-        <div class="auth-switch">
-            Уже есть? <span id="backToLoginBtn">Войти</span>
+<div class="custom-modal" id="tiktokModal">
+    <div class="modal-card">
+        <h3>🎵 Новый ТикТок</h3>
+        <div class="btn" id="selectVideoBtn" style="margin-bottom:12px">📹 Выбрать видео</div>
+        <input type="text" id="tiktokCaptionInput" placeholder="Описание...">
+        <div class="modal-buttons">
+            <button class="modal-btn" id="submitTiktokBtn">Залить</button>
+            <button class="modal-btn modal-btn-outline" id="closeTiktokModalBtn">Отмена</button>
+        </div>
+    </div>
+    <input type="file" id="tiktokFileInput" accept="video/*">
+</div>
+
+<div class="custom-modal" id="editUsernameModal">
+    <div class="modal-card">
+        <h3>✏️ Сменить ник</h3>
+        <input type="text" id="newUsernameInput" placeholder="Новый никнейм">
+        <div class="modal-buttons">
+            <button class="modal-btn" id="saveUsernameBtn">Сохранить</button>
+            <button class="modal-btn modal-btn-outline" id="closeUsernameModalBtn">Отмена</button>
         </div>
     </div>
 </div>
 
-<!-- ЭКРАН ПОДТВЕРЖДЕНИЯ КОДА -->
-<div class="auth-screen hidden" id="codeScreen">
-    <div class="auth-card">
-        <div class="auth-logo">🔐 Подтверждение</div>
-        <div id="codeError" class="error-msg"></div>
-        <p style="text-align:center;margin-bottom:16px">Код отправлен на<br><strong id="codeEmailDisplay"></strong></p>
-        <div class="code-inputs">
-            <input type="text" maxlength="1" class="code-digit" id="code1">
-            <input type="text" maxlength="1" class="code-digit" id="code2">
-            <input type="text" maxlength="1" class="code-digit" id="code3">
-            <input type="text" maxlength="1" class="code-digit" id="code4">
-            <input type="text" maxlength="1" class="code-digit" id="code5">
-            <input type="text" maxlength="1" class="code-digit" id="code6">
-        </div>
-        <button class="auth-btn" id="verifyCodeBtn">ПОДТВЕРДИТЬ</button>
-        <div class="auth-switch">
-            <span id="resendCodeBtn">Отправить код снова</span>
-        </div>
+<div class="custom-modal" id="alertModal">
+    <div class="modal-card">
+        <h3 id="alertTitle">⚠️</h3>
+        <p id="alertMessage" style="margin-bottom:20px"></p>
+        <button class="modal-btn" id="alertCloseBtn">Понятно</button>
     </div>
 </div>
 
-<!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ (то же самое, без изменений) -->
-<div class="app-container" id="appContainer">
+<!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
+<div class="app-container" style="display:flex; flex-direction:column; height:100vh">
     <div class="top-bar">
         <div class="top-logo">🔥 HJ</div>
         <div class="top-icons">
@@ -612,96 +622,72 @@
             <div class="top-icon" id="topSettingsBtn">⚙️</div>
         </div>
     </div>
+
     <div class="main-content" id="mainContent">
-        <div class="page" id="tiktokPage"><div id="tiktokFeed"></div></div>
-        <div class="page" id="feedPage"><div id="postsFeed"></div></div>
-        <div class="page" id="profilePage"><div id="profileContent"></div></div>
-        <div class="page" id="dmPage"><div id="dmContent"></div></div>
-        <div class="page" id="settingsPage"><div id="settingsContent"></div></div>
+        <!-- ТИКТОК с анимацией -->
+        <div class="page" id="tiktokPage">
+            <div class="tiktok-wrapper" id="tiktokWrapper">
+                <div class="tiktok-slider" id="tiktokSlider"></div>
+            </div>
+        </div>
+
+        <!-- ЛЕНТА ПОСТОВ -->
+        <div class="page" id="feedPage">
+            <div id="postsFeed"></div>
+        </div>
+
+        <!-- ПРОФИЛЬ -->
+        <div class="page" id="profilePage">
+            <div id="profileContent"></div>
+        </div>
+
+        <!-- ЛИЧКА -->
+        <div class="page" id="dmPage">
+            <div id="dmContent"></div>
+        </div>
+
+        <!-- НАСТРОЙКИ -->
+        <div class="page" id="settingsPage">
+            <div id="settingsContent"></div>
+        </div>
     </div>
+
     <div class="bottom-nav">
         <div class="nav-item" data-page="tiktok"><span class="nav-icon">🎵</span><span>ТикТок</span></div>
         <div class="nav-item" data-page="feed"><span class="nav-icon">📰</span><span>Лента</span></div>
         <div class="nav-item" data-page="dm"><span class="nav-icon">💬</span><span>Личка</span></div>
     </div>
 </div>
+
 <div class="fab" id="fabBtn">+</div>
 
+<input type="file" id="avatarInput" accept="image/*" style="display:none">
+
 <script>
-    // ========== ВРЕМЕННОЕ ХРАНИЛИЩЕ КОДОВ (эмуляция почты) ==========
-    let pendingCodes = {}; // { email: { code, expires, tempUserData } }
-
-    function generateCode() {
-        return Math.floor(100000 + Math.random() * 900000).toString();
-    }
-
-    // Эмуляция отправки на почту (в реальном проекте тут API)
-    function sendCodeToEmail(email, code) {
-        console.log(`[EMAIL] Код подтверждения для ${email}: ${code}`);
-        // В браузере показываем alert с кодом (имитация почты)
-        alert(`📧 НА ВАШУ ПОЧТУ ОТПРАВЛЕН КОД: ${code}\n(в реальном проекте придет на email, сейчас демо-режим)`);
-        return true;
-    }
-
-    // ========== ВАЛИДАЦИЯ ==========
-    function validateEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function validateUsername(username) {
-        return username && username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-    }
-
-    function validatePassword(password) {
-        return password && password.length >= 6;
-    }
-
-    // ========== ПОЛЬЗОВАТЕЛИ ==========
+    // ========== ПОЛЬЗОВАТЕЛИ (упрощенно, без 2FA для чистоты кода) ==========
     let users = JSON.parse(localStorage.getItem('hj_users')) || {};
     let currentSession = localStorage.getItem('hj_session');
 
     function saveUsers() { localStorage.setItem('hj_users', JSON.stringify(users)); }
-    function hashPassword(pwd) { return btoa(pwd + "hj_salt_2fa_2024"); }
+    function hashPassword(pwd) { return btoa(pwd + "hj_salt"); }
 
-    // Регистрация с 2FA — сохраняем временные данные
-    function startRegistration(email, username, password) {
-        if (!validateEmail(email)) return "Некорректная почта";
-        if (!validateUsername(username)) return "Логин: минимум 3 символа, только буквы/цифры/_";
-        if (!validatePassword(password)) return "Пароль: минимум 6 символов";
-        if (users[email]) return "Почта уже зарегистрирована";
+    function register(email, username, password) {
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) return "Некорректная почта";
+        if (!username || username.length < 3) return "Логин минимум 3 символа";
+        if (!password || password.length < 6) return "Пароль минимум 6 символов";
+        if (users[email]) return "Почта уже занята";
         if (Object.values(users).find(u => u.username === username)) return "Логин уже занят";
-
-        const code = generateCode();
-        pendingCodes[email] = {
-            code: code,
-            expires: Date.now() + 5 * 60 * 1000,
-            tempUserData: { email, username, password: hashPassword(password) }
-        };
-        sendCodeToEmail(email, code);
-        return null;
-    }
-
-    function verifyCode(email, inputCode) {
-        const pending = pendingCodes[email];
-        if (!pending) return "Код не найден. Запросите новый";
-        if (Date.now() > pending.expires) return "Код истек. Запросите новый";
-        if (pending.code !== inputCode) return "Неверный код подтверждения";
-
-        // Регистрируем пользователя
-        const { email: userEmail, username, password } = pending.tempUserData;
-        users[userEmail] = {
-            email: userEmail,
+        users[email] = {
+            email: email,
             username: username,
-            password: password,
+            password: hashPassword(password),
             avatar: null,
             friends: [],
             friendRequests: [],
             dms: {},
-            createdAt: Date.now(),
-            isVerified: true
+            createdAt: Date.now()
         };
         saveUsers();
-        delete pendingCodes[email];
         return null;
     }
 
@@ -709,7 +695,6 @@
         const user = users[email];
         if (!user) return "Пользователь не найден";
         if (user.password !== hashPassword(password)) return "Неверный пароль";
-        if (!user.isVerified) return "Аккаунт не подтвержден. Зарегистрируйтесь заново";
         currentSession = email;
         localStorage.setItem('hj_session', currentSession);
         return null;
@@ -719,7 +704,7 @@
     function updateUserData(data) { if (currentSession && users[currentSession]) { users[currentSession] = { ...users[currentSession], ...data }; saveUsers(); } }
     function logout() { localStorage.removeItem('hj_session'); currentSession = null; }
 
-    // ========== ДАННЫЕ ПОСТОВ И Т.Д. ==========
+    // ========== ДАННЫЕ ==========
     let posts = JSON.parse(localStorage.getItem('hj_posts')) || [];
     let tiktoks = JSON.parse(localStorage.getItem('hj_tiktoks')) || [];
     let likedPosts = new Set(JSON.parse(localStorage.getItem('hj_liked_posts')) || []);
@@ -727,6 +712,7 @@
     let currentPage = "feed";
     let selectedDmFriend = null;
     let currentTheme = localStorage.getItem('hj_theme') || 'dark';
+    let currentProfileTab = "posts";
 
     function saveAppData() {
         localStorage.setItem('hj_posts', JSON.stringify(posts));
@@ -735,11 +721,47 @@
         localStorage.setItem('hj_liked_tiktoks', JSON.stringify([...likedTiktoks]));
     }
 
-    // ========== ОТРИСОВКА (упрощенная, но рабочая) ==========
+    // ========== КАСТОМНЫЙ АЛЕРТ ==========
+    function showAlert(message) {
+        document.getElementById('alertMessage').innerText = message;
+        document.getElementById('alertModal').classList.add('active');
+    }
+
+    // ========== ПОСТЫ ==========
+    function openPostModal() { document.getElementById('postModal').classList.add('active'); }
+    function closePostModal() { document.getElementById('postModal').classList.remove('active'); document.getElementById('postContentInput').value = ''; }
+
+    function createPost() {
+        const content = document.getElementById('postContentInput').value.trim();
+        if (!content) { showAlert("Напиши что-нибудь, еблан"); return; }
+        const user = getCurrentUser();
+        posts.unshift({
+            id: Date.now(),
+            userId: user.email,
+            username: user.username,
+            avatar: user.avatar,
+            content: content,
+            timestamp: new Date().toLocaleString(),
+            likes: 0
+        });
+        saveAppData();
+        closePostModal();
+        renderFeed();
+        switchPage('feed');
+    }
+
+    function likePost(id) {
+        const p = posts.find(x => x.id == id);
+        if (likedPosts.has(id)) { likedPosts.delete(id); p.likes--; }
+        else { likedPosts.add(id); p.likes++; }
+        saveAppData();
+        renderFeed();
+    }
+
     function renderFeed() {
         const container = document.getElementById('postsFeed');
         if (!container) return;
-        if (!posts.length) { container.innerHTML = '<div style="text-align:center;padding:40px"><button class="btn" onclick="createTextPost()">📝 Первый пост</button></div>'; return; }
+        if (!posts.length) { container.innerHTML = '<div style="text-align:center;padding:40px"><button class="btn" id="emptyFeedBtn">📝 Первый пост</button></div>'; document.getElementById('emptyFeedBtn')?.addEventListener('click', openPostModal); return; }
         container.innerHTML = posts.map(p => `
             <div class="post-card">
                 <div class="post-header">
@@ -747,110 +769,445 @@
                     <div><div class="post-username">${escapeHtml(p.username)}</div><div class="post-time">${p.timestamp}</div></div>
                 </div>
                 <div class="post-content">${escapeHtml(p.content)}</div>
-                <div class="post-actions"><button class="action-btn" onclick="likePost(${p.id})">❤️ ${p.likes}</button></div>
+                <div class="post-actions">
+                    <button class="action-btn" onclick="likePost(${p.id})">❤️ ${p.likes}</button>
+                </div>
             </div>
         `).join('');
     }
 
-    function likePost(id) { const p = posts.find(x => x.id == id); if (likedPosts.has(id)) { likedPosts.delete(id); p.likes--; } else { likedPosts.add(id); p.likes++; } saveAppData(); renderFeed(); }
-    function createTextPost() { const content = prompt("Что напишешь?"); if (content?.trim()) { const u = getCurrentUser(); posts.unshift({ id: Date.now(), userId: u.email, username: u.username, avatar: u.avatar, content: content, timestamp: new Date().toLocaleString(), likes: 0 }); saveAppData(); renderFeed(); switchPage('feed'); } }
+    // ========== ТИКТОК С АНИМАЦИЕЙ ==========
+    let currentTiktokIndex = 0;
+    let touchStartY = 0;
 
     function renderTiktokFeed() {
-        const container = document.getElementById('tiktokFeed');
+        const container = document.getElementById('tiktokSlider');
         if (!container) return;
-        if (!tiktoks.length) { container.innerHTML = '<div style="text-align:center;padding:40px"><button class="btn" onclick="openTiktokModal()">🎵 Добавить тикток</button></div>'; return; }
-        container.innerHTML = tiktoks.map(t => `
-            <div class="tiktok-container">
-                <video src="${t.videoUrl}" class="tiktok-video" loop playsinline></video>
-                <div class="tiktok-overlay"><div class="tiktok-username">${escapeHtml(t.username)}</div><div>${escapeHtml(t.caption || '')}</div></div>
-                <div class="tiktok-actions"><div class="tiktok-action" onclick="likeTiktok(${t.id})"><div>${likedTiktoks.has(t.id) ? '❤️' : '♡'}</div><div>${t.likes || 0}</div></div></div>
+        if (!tiktoks.length) { container.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center"><button class="btn" id="emptyTiktokBtn">🎵 Добавить тикток</button></div>'; document.getElementById('emptyTiktokBtn')?.addEventListener('click', openTiktokModal); return; }
+        
+        container.innerHTML = tiktoks.map((t, idx) => `
+            <div class="tiktok-slide" data-index="${idx}">
+                <video src="${t.videoUrl}" class="tiktok-video" loop playsinline id="tiktokVideo_${t.id}"></video>
+                <div class="tiktok-overlay">
+                    <div class="tiktok-username">${escapeHtml(t.username)}</div>
+                    <div class="tiktok-caption">${escapeHtml(t.caption || '')}</div>
+                </div>
+                <div class="tiktok-actions">
+                    <div class="tiktok-action" onclick="event.stopPropagation(); likeTiktok(${t.id})">
+                        <div class="tiktok-action-icon ${likedTiktoks.has(t.id) ? 'heart-active' : ''}" style="font-size:28px">${likedTiktoks.has(t.id) ? '❤️' : '♡'}</div>
+                        <div>${t.likes || 0}</div>
+                    </div>
+                </div>
             </div>
         `).join('');
-        setTimeout(() => { document.querySelectorAll('.tiktok-video').forEach(v => { v.play().catch(()=>{}); }); }, 100);
+        
+        updateTiktokSliderPosition();
+        
+        setTimeout(() => {
+            document.querySelectorAll('.tiktok-video').forEach(v => { v.pause(); });
+            const currentVideo = document.getElementById(`tiktokVideo_${tiktoks[currentTiktokIndex]?.id}`);
+            if (currentVideo) currentVideo.play().catch(()=>{});
+        }, 100);
+        
+        setupTiktokSwipe();
     }
-    function likeTiktok(id) { const t = tiktoks.find(x => x.id == id); if (likedTiktoks.has(id)) { likedTiktoks.delete(id); t.likes--; } else { likedTiktoks.add(id); t.likes++; } saveAppData(); renderTiktokFeed(); }
-    function openTiktokModal() { alert("Функция добавления тиктока — будет позже"); }
 
-    function renderProfile() { const u = getCurrentUser(); if(!u) return; document.getElementById('profileContent').innerHTML = `<div class="profile-card" style="background:var(--card);border-radius:20px;padding:20px;text-align:center"><div class="profile-avatar-large">${u.avatar ? `<img src="${u.avatar}">` : '👤'}</div><h3>${escapeHtml(u.username)}</h3><div class="profile-stats"><div><div class="stat-value">${tiktoks.filter(t=>t.userId===u.email).length}</div><div>ТикТоков</div></div><div><div class="stat-value">${posts.filter(p=>p.userId===u.email).length}</div><div>Постов</div></div><div><div class="stat-value">${u.friends?.length||0}</div><div>Друзей</div></div></div><button class="btn" onclick="editUsername()">✏️ Сменить ник</button></div>`; }
-    function editUsername() { const n = prompt("Новый ник:"); if(n?.trim()) { updateUserData({ username: n.trim() }); renderProfile(); renderFeed(); } }
-    function renderDM() { document.getElementById('dmContent').innerHTML = '<div style="text-align:center;padding:40px">Личка в разработке</div>'; }
-    function renderSettings() { document.getElementById('settingsContent').innerHTML = `<div class="settings-item"><span>🌙 Тема</span><div class="theme-switch ${currentTheme === 'dark' ? 'active' : ''}" id="themeToggle"><div class="theme-switch-knob"></div></div></div><div class="settings-item"><span>🚪 Выйти</span><button class="btn" onclick="doLogout()" style="background:#ff003c">Выход</button></div>`; document.getElementById('themeToggle')?.addEventListener('click', toggleTheme); }
-    function doLogout() { logout(); location.reload(); }
-    function toggleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
-    function applyTheme(theme) { currentTheme = theme; document.body.className = `theme-${theme}`; localStorage.setItem('hj_theme', theme); }
-    function switchPage(pageId) { currentPage = pageId; document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page')); document.getElementById(`${pageId}Page`).classList.add('active-page'); document.querySelectorAll('.nav-item').forEach(item => { if(item.dataset.page === pageId) item.classList.add('active'); else item.classList.remove('active'); }); if(pageId === 'tiktok') renderTiktokFeed(); if(pageId === 'feed') renderFeed(); if(pageId === 'profile') renderProfile(); if(pageId === 'dm') renderDM(); if(pageId === 'settings') renderSettings(); }
-    function escapeHtml(s) { if(!s) return ''; return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    function updateTiktokSliderPosition() {
+        const slider = document.getElementById('tiktokSlider');
+        if (slider) slider.style.transform = `translateY(-${currentTiktokIndex * 100}%)`;
+    }
 
-    // ========== УПРАВЛЕНИЕ ЭКРАНАМИ ==========
-    let pendingRegEmail = null;
+    function setupTiktokSwipe() {
+        const wrapper = document.getElementById('tiktokWrapper');
+        if (!wrapper) return;
+        
+        wrapper.removeEventListener('touchstart', handleTouchStart);
+        wrapper.removeEventListener('touchmove', handleTouchMove);
+        wrapper.removeEventListener('touchend', handleTouchEnd);
+        
+        wrapper.addEventListener('touchstart', handleTouchStart);
+        wrapper.addEventListener('touchmove', handleTouchMove);
+        wrapper.addEventListener('touchend', handleTouchEnd);
+    }
+    
+    function handleTouchStart(e) { touchStartY = e.touches[0].clientY; }
+    function handleTouchMove(e) { e.preventDefault(); }
+    function handleTouchEnd(e) {
+        const diff = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(diff) < 50) return;
+        if (diff > 0 && currentTiktokIndex > 0) currentTiktokIndex--;
+        else if (diff < 0 && currentTiktokIndex < tiktoks.length - 1) currentTiktokIndex++;
+        else return;
+        
+        updateTiktokSliderPosition();
+        
+        document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
+        setTimeout(() => {
+            const currentVideo = document.getElementById(`tiktokVideo_${tiktoks[currentTiktokIndex]?.id}`);
+            if (currentVideo) currentVideo.play().catch(()=>{});
+        }, 50);
+    }
 
-    document.getElementById('showRegBtn').onclick = () => { document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('regScreen').classList.remove('hidden'); };
-    document.getElementById('backToLoginBtn').onclick = () => { document.getElementById('regScreen').classList.add('hidden'); document.getElementById('loginScreen').classList.remove('hidden'); };
-    document.getElementById('sendCodeBtn').onclick = () => {
-        const email = document.getElementById('regEmail').value;
-        const username = document.getElementById('regUsername').value;
-        const password = document.getElementById('regPassword').value;
-        const error = startRegistration(email, username, password);
-        if (error) { document.getElementById('regError').innerText = error; return; }
-        pendingRegEmail = email;
-        document.getElementById('codeEmailDisplay').innerText = email;
-        document.getElementById('regScreen').classList.add('hidden');
-        document.getElementById('codeScreen').classList.remove('hidden');
-        document.getElementById('codeError').innerText = '';
-        document.querySelectorAll('.code-digit').forEach((inp, i) => { inp.value = ''; if(i===0) inp.focus(); });
-    };
-    document.getElementById('resendCodeBtn').onclick = () => {
-        if (!pendingRegEmail) return;
-        const pending = pendingCodes[pendingRegEmail];
-        if (pending) {
-            const newCode = generateCode();
-            pending.code = newCode;
-            pending.expires = Date.now() + 5 * 60 * 1000;
-            sendCodeToEmail(pendingRegEmail, newCode);
-            document.getElementById('codeError').innerText = 'Новый код отправлен';
-        } else {
-            document.getElementById('codeError').innerText = 'Ошибка, начните регистрацию заново';
+    function likeTiktok(id) {
+        const t = tiktoks.find(x => x.id == id);
+        if (likedTiktoks.has(id)) { likedTiktoks.delete(id); t.likes--; }
+        else { likedTiktoks.add(id); t.likes++; }
+        saveAppData();
+        renderTiktokFeed();
+    }
+
+    function openTiktokModal() { document.getElementById('tiktokModal').classList.add('active'); }
+    function closeTiktokModal() { document.getElementById('tiktokModal').classList.remove('active'); document.getElementById('tiktokCaptionInput').value = ''; document.getElementById('tiktokFileInput').value = ''; window.pendingTiktok = null; }
+
+    document.getElementById('selectVideoBtn').onclick = () => document.getElementById('tiktokFileInput').click();
+    document.getElementById('tiktokFileInput').onchange = (e) => {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { window.pendingTiktok = ev.target.result; showAlert("Видео готово, жми Залить"); };
+            reader.readAsDataURL(e.target.files[0]);
         }
     };
-    document.getElementById('verifyCodeBtn').onclick = () => {
-        const code = Array.from(document.querySelectorAll('.code-digit')).map(i => i.value).join('');
-        if (code.length !== 6) { document.getElementById('codeError').innerText = 'Введите 6 цифр'; return; }
-        const error = verifyCode(pendingRegEmail, code);
-        if (error) { document.getElementById('codeError').innerText = error; return; }
-        document.getElementById('codeScreen').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-        document.getElementById('loginError').innerText = 'Регистрация успешна! Войдите';
+    document.getElementById('submitTiktokBtn').onclick = () => {
+        if (!window.pendingTiktok) { showAlert("Выбери видео"); return; }
+        const user = getCurrentUser();
+        tiktoks.unshift({
+            id: Date.now(),
+            userId: user.email,
+            username: user.username,
+            avatar: user.avatar,
+            videoUrl: window.pendingTiktok,
+            caption: document.getElementById('tiktokCaptionInput').value,
+            likes: 0
+        });
+        saveAppData();
+        closeTiktokModal();
+        renderTiktokFeed();
+        renderProfile();
+        if (currentPage === 'tiktok') switchPage('tiktok');
     };
-    document.getElementById('loginBtn').onclick = () => {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        const error = login(email, password);
-        if (error) { document.getElementById('loginError').innerText = error; return; }
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('appContainer').classList.add('active');
-        applyTheme(currentTheme);
-        switchPage('feed');
-    };
-    document.getElementById('topProfileBtn').onclick = () => switchPage('profile');
-    document.getElementById('topSettingsBtn').onclick = () => switchPage('settings');
-    document.getElementById('fabBtn').onclick = createTextPost;
-    document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => switchPage(el.dataset.page)));
 
-    // Авто-переключение между полями кода
-    document.querySelectorAll('.code-digit').forEach((input, index, arr) => {
-        input.addEventListener('input', (e) => { if(e.target.value.length === 1 && index < arr.length-1) arr[index+1].focus(); });
-        input.addEventListener('keydown', (e) => { if(e.key === 'Backspace' && !e.target.value && index > 0) arr[index-1].focus(); });
-    });
-
-    if (currentSession && users[currentSession]) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('appContainer').classList.add('active');
-        applyTheme(currentTheme);
-        switchPage('feed');
-    } else {
-        document.getElementById('loginScreen').classList.remove('hidden');
-        document.getElementById('appContainer').classList.remove('active');
+    // ========== ПРОФИЛЬ ==========
+    function renderProfile() {
+        const user = getCurrentUser();
+        if (!user) return;
+        const container = document.getElementById('profileContent');
+        container.innerHTML = `
+            <div class="profile-header">
+                <div class="profile-avatar-large" id="profileAvatarClick">
+                    ${user.avatar ? `<img src="${user.avatar}">` : '👤'}
+                </div>
+                <h3>${escapeHtml(user.username)}</h3>
+                <div class="profile-stats">
+                    <div><div class="stat-value">${tiktoks.filter(t => t.userId === user.email).length}</div><div class="stat-label">ТикТоков</div></div>
+                    <div><div class="stat-value">${posts.filter(p => p.userId === user.email).length}</div><div class="stat-label">Постов</div></div>
+                    <div><div class="stat-value">${user.friends?.length || 0}</div><div class="stat-label">Друзей</div></div>
+                </div>
+                <button class="btn" id="editProfileUsernameBtn">✏️ Сменить ник</button>
+            </div>
+            <div class="profile-tabs">
+                <div class="profile-tab ${currentProfileTab === 'posts' ? 'active' : ''}" data-tab="posts">📝 Мои посты</div>
+                <div class="profile-tab ${currentProfileTab === 'tiktoks' ? 'active' : ''}" data-tab="tiktoks">🎵 Мои ТикТоки</div>
+            </div>
+            <div id="profileTabContent"></div>
+        `;
+        
+        document.getElementById('profileAvatarClick')?.addEventListener('click', () => document.getElementById('avatarInput').click());
+        document.getElementById('editProfileUsernameBtn')?.addEventListener('click', () => document.getElementById('editUsernameModal').classList.add('active'));
+        document.querySelectorAll('.profile-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                currentProfileTab = tab.dataset.tab;
+                renderProfileTab();
+                document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+        renderProfileTab();
     }
+
+    function renderProfileTab() {
+        const user = getCurrentUser();
+        const container = document.getElementById('profileTabContent');
+        if (!container) return;
+        
+        if (currentProfileTab === 'posts') {
+            const userPosts = posts.filter(p => p.userId === user.email);
+            if (!userPosts.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">📭 Нет постов</div>'; return; }
+            container.innerHTML = userPosts.map(p => `
+                <div class="post-card">
+                    <div class="post-content">${escapeHtml(p.content)}</div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px">❤️ ${p.likes} • ${p.timestamp}</div>
+                </div>
+            `).join('');
+        } else {
+            const userTiktoks = tiktoks.filter(t => t.userId === user.email);
+            if (!userTiktoks.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary)">🎵 Нет тиктоков</div>'; return; }
+            container.innerHTML = userTiktoks.map(t => `
+                <div style="background:var(--card);border-radius:16px;margin-bottom:12px;padding:12px;display:flex;gap:12px;align-items:center">
+                    <video src="${t.videoUrl}" style="width:70px;height:90px;border-radius:12px;object-fit:cover"></video>
+                    <div><div>${escapeHtml(t.caption || 'без описания')}</div><div style="font-size:11px;color:var(--text-secondary)">❤️ ${t.likes}</div></div>
+                </div>
+            `).join('');
+        }
+    }
+
+    function changeAvatar() {
+        const input = document.getElementById('avatarInput');
+        input.onchange = (e) => {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    updateUserData({ avatar: ev.target.result });
+                    renderProfile();
+                    renderFeed();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        };
+        input.click();
+    }
+
+    function saveUsername() {
+        const newName = document.getElementById('newUsernameInput').value.trim();
+        if (!newName) { showAlert("Введите ник"); return; }
+        if (newName.length < 3) { showAlert("Минимум 3 символа"); return; }
+        updateUserData({ username: newName });
+        document.getElementById('editUsernameModal').classList.remove('active');
+        document.getElementById('newUsernameInput').value = '';
+        renderProfile();
+        renderFeed();
+        renderTiktokFeed();
+    }
+
+    // ========== ЛИЧКА (упрощенно) ==========
+    function renderDM() {
+        const user = getCurrentUser();
+        const container = document.getElementById('dmContent');
+        container.innerHTML = `
+            <div id="dmFriendsList"></div>
+            <div class="dm-chat-area" id="dmChatArea">
+                <div class="dm-messages-list" id="dmMessagesList"></div>
+                <div class="dm-input-area">
+                    <input type="text" id="dmMessageInput" placeholder="Сообщение...">
+                    <button class="btn" id="dmSendBtn">📨</button>
+                </div>
+            </div>
+        `;
+        
+        const friendsDiv = document.getElementById('dmFriendsList');
+        let html = `<button class="btn" style="width:100%;margin-bottom:8px" id="searchFriendBtn">➕ Найти друга</button>`;
+        
+        if (user.friendRequests?.length) {
+            html += `<div style="padding:8px;background:var(--card);border-radius:16px;margin-bottom:8px"><strong>📨 Заявки:</strong>`;
+            user.friendRequests.forEach(r => {
+                html += `<div style="display:flex;justify-content:space-between;padding:8px"><span>${escapeHtml(r)}</span><div><button class="btn" style="padding:4px 12px" onclick="acceptFriend('${escapeHtml(r)}')">✅</button><button class="btn" style="padding:4px 12px" onclick="rejectFriend('${escapeHtml(r)}')">❌</button></div></div>`;
+            });
+            html += `</div>`;
+        }
+        
+        html += `<div style="padding:8px"><strong>👥 Друзья (${user.friends?.length || 0})</strong></div>`;
+        (user.friends || []).forEach(f => {
+            html += `<div class="dm-friend-item" onclick="openDm('${escapeHtml(f)}')"><div class="post-avatar" style="width:40px;height:40px">👤</div><div>${escapeHtml(f)}</div></div>`;
+        });
+        friendsDiv.innerHTML = html;
+        
+        document.getElementById('dmSendBtn')?.addEventListener('click', sendDm);
+        document.getElementById('dmMessageInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDm(); });
+        document.getElementById('searchFriendBtn')?.addEventListener('click', () => {
+            const name = promptWithCustomModal("Введите ник друга:");
+            if (name && name !== user.username) searchUser(name);
+        });
+        if (selectedDmFriend) renderDmChat();
+    }
+
+    function promptWithCustomModal(question) {
+        // Временный костыль — но лучше чем alert
+        return prompt(question);
+    }
+
+    function searchUser(username) {
+        const user = getCurrentUser();
+        if (user.friends?.includes(username)) { showAlert("Уже друг"); return; }
+        if (user.friendRequests?.includes(username)) { showAlert("Заявка уже отправлена"); return; }
+        const newRequests = [...(user.friendRequests || []), username];
+        updateUserData({ friendRequests: newRequests });
+        renderDM();
+        showAlert(`Заявка отправлена ${username}`);
+    }
+
+    function acceptFriend(username) {
+        const user = getCurrentUser();
+        const newRequests = (user.friendRequests || []).filter(f => f !== username);
+        const newFriends = [...(user.friends || []), username];
+        const newDms = { ...(user.dms || {}), [username]: [] };
+        updateUserData({ friendRequests: newRequests, friends: newFriends, dms: newDms });
+        renderDM();
+        renderProfile();
+    }
+
+    function rejectFriend(username) {
+        const user = getCurrentUser();
+        updateUserData({ friendRequests: (user.friendRequests || []).filter(f => f !== username) });
+        renderDM();
+    }
+
+    function openDm(friend) {
+        selectedDmFriend = friend;
+        renderDmChat();
+    }
+
+    function sendDm() {
+        const user = getCurrentUser();
+        if (!selectedDmFriend) { showAlert("Выбери друга"); return; }
+        const input = document.getElementById('dmMessageInput');
+        const text = input?.value.trim();
+        if (!text) return;
+        if (!user.dms) user.dms = {};
+        if (!user.dms[selectedDmFriend]) user.dms[selectedDmFriend] = [];
+        user.dms[selectedDmFriend].push({ from: user.username, text: text, time: new Date().toLocaleTimeString() });
+        updateUserData({ dms: user.dms });
+        if (input) input.value = '';
+        renderDmChat();
+    }
+
+    function renderDmChat() {
+        const user = getCurrentUser();
+        const messagesDiv = document.getElementById('dmMessagesList');
+        if (!selectedDmFriend) {
+            if (messagesDiv) messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px">Выбери друга</div>';
+            return;
+        }
+        const msgs = user.dms?.[selectedDmFriend] || [];
+        if (!msgs.length) {
+            if (messagesDiv) messagesDiv.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px">Нет сообщений</div>';
+        } else {
+            if (messagesDiv) messagesDiv.innerHTML = msgs.map(m => `<div class="dm-message ${m.from === user.username ? 'own' : ''}"><div>${escapeHtml(m.text)}</div><div style="font-size:10px;opacity:0.7">${m.time}</div></div>`).join('');
+        }
+        if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // ========== НАСТРОЙКИ ==========
+    function renderSettings() {
+        const user = getCurrentUser();
+        const container = document.getElementById('settingsContent');
+        container.innerHTML = `
+            <div class="settings-item">
+                <span>👤 ${escapeHtml(user.username)}</span>
+                <button class="btn btn-outline" id="settingsEditUsernameBtn" style="padding:6px 12px">Изменить</button>
+            </div>
+            <div class="settings-item">
+                <span>🌙 Темная тема</span>
+                <div class="theme-switch ${currentTheme === 'dark' ? 'active' : ''}" id="themeSwitchBtn">
+                    <div class="theme-switch-knob"></div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <span>🚪 Выйти</span>
+                <button class="btn" id="logoutBtn" style="background:#ff003c;padding:6px 12px">Выход</button>
+            </div>
+        `;
+        document.getElementById('settingsEditUsernameBtn')?.addEventListener('click', () => document.getElementById('editUsernameModal').classList.add('active'));
+        document.getElementById('themeSwitchBtn')?.addEventListener('click', toggleTheme);
+        document.getElementById('logoutBtn')?.addEventListener('click', () => { logout(); location.reload(); });
+    }
+
+    // ========== НАВИГАЦИЯ ==========
+    function switchPage(pageId) {
+        currentPage = pageId;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(`${pageId}Page`).classList.add('active-page');
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.dataset.page === pageId) item.classList.add('active');
+            else item.classList.remove('active');
+        });
+        if (pageId === 'tiktok') { renderTiktokFeed(); }
+        if (pageId === 'feed') renderFeed();
+        if (pageId === 'profile') renderProfile();
+        if (pageId === 'dm') renderDM();
+        if (pageId === 'settings') renderSettings();
+    }
+
+    function toggleTheme() {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.className = `theme-${currentTheme}`;
+        localStorage.setItem('hj_theme', currentTheme);
+        document.querySelectorAll('.theme-switch').forEach(sw => {
+            if (currentTheme === 'dark') sw.classList.add('active');
+            else sw.classList.remove('active');
+        });
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    // ========== АВТОРИЗАЦИЯ (ПРОСТАЯ ДЛЯ ТЕСТА) ==========
+    function showAuthScreen() {
+        const email = prompt("Email для входа/регистрации:");
+        if (!email) return;
+        const username = prompt("Логин:");
+        if (!username) return;
+        const password = prompt("Пароль (мин 6 символов):");
+        if (!password || password.length < 6) { alert("Пароль минимум 6"); showAuthScreen(); return; }
+        
+        if (users[email]) {
+            const err = login(email, password);
+            if (err) { alert(err); showAuthScreen(); return; }
+        } else {
+            const err = register(email, username, password);
+            if (err) { alert(err); showAuthScreen(); return; }
+            const err2 = login(email, password);
+            if (err2) { alert(err2); showAuthScreen(); return; }
+        }
+        document.querySelector('.app-container').style.display = 'flex';
+        applyTheme(currentTheme);
+        switchPage('feed');
+    }
+
+    function applyTheme(theme) {
+        currentTheme = theme;
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('hj_theme', theme);
+    }
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        applyTheme(currentTheme);
+        
+        if (!currentSession || !users[currentSession]) {
+            showAuthScreen();
+        } else {
+            document.querySelector('.app-container').style.display = 'flex';
+            switchPage('feed');
+        }
+        
+        document.getElementById('fabBtn').onclick = openPostModal;
+        document.getElementById('topProfileBtn').onclick = () => switchPage('profile');
+        document.getElementById('topSettingsBtn').onclick = () => switchPage('settings');
+        
+        document.getElementById('submitPostBtn').onclick = createPost;
+        document.getElementById('closePostModalBtn').onclick = closePostModal;
+        document.getElementById('closeTiktokModalBtn').onclick = closeTiktokModal;
+        document.getElementById('saveUsernameBtn').onclick = saveUsername;
+        document.getElementById('closeUsernameModalBtn').onclick = () => document.getElementById('editUsernameModal').classList.remove('active');
+        document.getElementById('alertCloseBtn').onclick = () => document.getElementById('alertModal').classList.remove('active');
+        
+        document.getElementById('avatarInput').onchange = (e) => {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    updateUserData({ avatar: ev.target.result });
+                    renderProfile();
+                    renderFeed();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        };
+        
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.addEventListener('click', () => switchPage(el.dataset.page));
+        });
+    });
 </script>
 </body>
 </html>
