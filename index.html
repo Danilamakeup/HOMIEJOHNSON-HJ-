@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>HomieJohnson — Джонсон Видеос РАБОТАЕТ</title>
+    <title>HomieJohnson — Полная версия</title>
     <style>
         * {
             margin: 0;
@@ -54,11 +54,17 @@
         }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes heartBoom { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); text-shadow: 0 0 20px #ff003c; } 100% { transform: scale(2); opacity: 0; } }
+        @keyframes storyRing {
+            0% { box-shadow: 0 0 0 0 #ff003c; }
+            50% { box-shadow: 0 0 0 4px #ff003c, 0 0 0 8px #00ff41; }
+            100% { box-shadow: 0 0 0 0 #ff003c; }
+        }
         
         .glitch-text { animation: glitch 0.5s infinite; }
         .post-card { animation: slideUp 0.3s ease; }
         .btn, .fab { transition: all 0.1s ease; }
         .btn:active, .fab:active { transform: scale(0.95); }
+        .story-circle { animation: storyRing 2s infinite; }
 
         /* АВТОРИЗАЦИЯ */
         .auth-overlay {
@@ -167,7 +173,7 @@
             padding: 14px;
             border-left: 3px solid var(--accent);
         }
-        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
         .post-avatar {
             width: 44px; height: 44px; border-radius: 50%;
             background: var(--gradient);
@@ -178,10 +184,13 @@
         .post-username { font-weight: bold; color: var(--accent); }
         .post-time { font-size: 10px; color: var(--text-secondary); }
         .post-content { font-size: 14px; margin: 10px 0; line-height: 1.4; }
-        .post-actions { display: flex; gap: 20px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
-        .action-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px 12px; border-radius: 30px; font-size: 13px; }
+        .post-stats { display: flex; gap: 15px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); }
+        .post-stats span { margin-right: 10px; }
+        .post-actions { display: flex; gap: 20px; margin-top: 8px; }
+        .action-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px 12px; border-radius: 30px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .action-btn:active { background: var(--accent-glow); }
 
-        /* ДЖОНСОН ВИДЕОС - РАБОТАЕТ */
+        /* ДЖОНСОН ВИДЕОС */
         .tiktok-container {
             height: 100%;
             position: relative;
@@ -189,10 +198,7 @@
             background: #000;
             border-radius: 20px;
         }
-        .tiktok-slider {
-            height: 100%;
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+        .tiktok-slider { height: 100%; transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
         .tiktok-item {
             height: 100%;
             position: relative;
@@ -201,13 +207,7 @@
             flex-direction: column;
             justify-content: center;
         }
-        .tiktok-video {
-            width: 100%;
-            height: auto;
-            max-height: 70vh;
-            object-fit: contain;
-            cursor: pointer;
-        }
+        .tiktok-video { width: 100%; height: auto; max-height: 70vh; object-fit: contain; cursor: pointer; }
         .tiktok-info {
             position: absolute;
             bottom: 20px;
@@ -254,10 +254,13 @@
             background: var(--gradient);
             display: flex; align-items: center; justify-content: center;
             font-size: 40px; overflow: hidden; cursor: pointer;
+            border: 3px solid var(--accent);
         }
         .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-stats { display: flex; justify-content: center; gap: 32px; margin: 16px 0; }
-        .stat-value { font-size: 22px; font-weight: bold; color: var(--accent); }
+        .profile-stats { display: flex; justify-content: center; gap: 32px; margin: 16px 0; flex-wrap: wrap; }
+        .stat-value { font-size: 20px; font-weight: bold; color: var(--accent); }
+        .stat-label { font-size: 11px; color: var(--text-secondary); }
+        .profile-stats-item { text-align: center; cursor: pointer; }
         .profile-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
         .profile-tab {
             flex: 1; text-align: center; padding: 12px;
@@ -265,6 +268,39 @@
             cursor: pointer; font-size: 13px;
         }
         .profile-tab.active { background: var(--accent); color: white; }
+        .follow-btn { padding: 6px 16px; border-radius: 20px; background: var(--accent); color: white; border: none; font-size: 12px; cursor: pointer; }
+
+        /* СТОРИС */
+        .stories-row {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 12px 0;
+            margin-bottom: 12px;
+            background: var(--surface);
+            border-radius: 20px;
+        }
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .story-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+        }
+        .story-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .story-circle.has-story { border: 3px solid #ff003c; box-shadow: 0 0 10px #ff003c; animation: storyRing 2s infinite; }
+        .story-name { font-size: 11px; color: var(--text-secondary); max-width: 70px; text-align: center; overflow: hidden; text-overflow: ellipsis; }
 
         /* ЛИЧКА */
         .dm-friend-item {
@@ -303,13 +339,27 @@
         }
         .theme-switch.active .theme-switch-knob { left: 23px; }
         .btn { background: var(--accent); border: none; padding: 10px 20px; color: white; border-radius: 30px; cursor: pointer; font-size: 13px; }
+        
+        /* ПЛАВАЮЩИЙ КРУЖОЧЕК */
         .fab {
-            position: fixed; bottom: 75px; right: 16px;
-            width: 52px; height: 52px; background: var(--gradient); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px; cursor: pointer; z-index: 15;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: fixed;
+            bottom: 75px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
         }
+        .fab.hidden { display: none; }
+
         .custom-modal {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.95);
@@ -371,7 +421,10 @@
         <div class="page" id="tiktokPage">
             <div class="tiktok-container" id="tiktokContainer"></div>
         </div>
-        <div class="page" id="feedPage"><div id="postsFeed"></div></div>
+        <div class="page" id="feedPage">
+            <div class="stories-row" id="storiesRow"></div>
+            <div id="postsFeed"></div>
+        </div>
         <div class="page" id="profilePage"><div id="profileContent"></div></div>
         <div class="page" id="dmPage"><div id="dmContent"></div></div>
         <div class="page" id="settingsPage"><div id="settingsContent"></div></div>
@@ -409,6 +462,25 @@
         </div>
     </div>
     <input type="file" id="tiktokFileInput" accept="video/*">
+</div>
+
+<div class="custom-modal" id="storyModal">
+    <div class="modal-card">
+        <h3>📸 НОВЫЙ СТОРИС</h3>
+        <div class="btn" id="selectStoryBtn" style="margin-bottom:12px">📷 ВЫБРАТЬ ФОТО/ВИДЕО</div>
+        <div class="modal-buttons">
+            <button class="modal-btn" id="submitStoryBtn">ОПУБЛИКОВАТЬ</button>
+            <button class="modal-btn" id="closeStoryModalBtn" style="background:transparent;border:1px solid var(--accent);color:var(--accent)">ОТМЕНА</button>
+        </div>
+    </div>
+    <input type="file" id="storyFileInput" accept="image/*,video/*">
+</div>
+
+<div class="custom-modal" id="viewStoryModal">
+    <div class="modal-card" style="padding:0; background:transparent; border:none; max-width:90%">
+        <div id="storyViewContent" style="border-radius:20px; overflow:hidden"></div>
+        <button class="modal-btn" id="closeViewStoryBtn" style="margin-top:12px">ЗАКРЫТЬ</button>
+    </div>
 </div>
 
 <div class="custom-modal" id="editUsernameModal">
@@ -449,7 +521,7 @@
         if (!validatePassword(password)) return "Пароль: мин 6 символов";
         if (users[email]) return "Почта уже занята";
         if (Object.values(users).find(u => u.username === username)) return "Логин уже занят";
-        users[email] = { email, username, password: hashPassword(password), avatar: null, friends: [], friendRequests: [], dms: {}, createdAt: Date.now() };
+        users[email] = { email, username, password: hashPassword(password), avatar: null, friends: [], followers: [], following: [], stories: [], dms: {}, createdAt: Date.now() };
         saveUsers();
         return null;
     }
@@ -464,6 +536,8 @@
     }
 
     function getCurrentUser() { return currentSession ? users[currentSession] : null; }
+    function getUserByEmail(email) { return users[email]; }
+    function getUserByUsername(username) { return Object.values(users).find(u => u.username === username); }
     function updateUserData(data) { if (currentSession && users[currentSession]) { users[currentSession] = { ...users[currentSession], ...data }; saveUsers(); } }
     function logout() { localStorage.removeItem('hj_session'); currentSession = null; }
 
@@ -471,6 +545,7 @@
     let posts = JSON.parse(localStorage.getItem('hj_posts')) || [];
     let tiktoks = JSON.parse(localStorage.getItem('hj_tiktoks')) || [];
     let likedPosts = new Set(JSON.parse(localStorage.getItem('hj_liked_posts')) || []);
+    let repostedPosts = new Set(JSON.parse(localStorage.getItem('hj_reposted_posts')) || []);
     let likedTiktoks = new Set(JSON.parse(localStorage.getItem('hj_liked_tiktoks')) || []);
     let currentPage = "feed";
     let selectedDmFriend = null;
@@ -478,11 +553,13 @@
     let currentProfileTab = "posts";
     let currentTiktokIndex = 0;
     let touchStartY = 0;
+    let viewingProfileEmail = null;
 
     function saveAppData() {
         localStorage.setItem('hj_posts', JSON.stringify(posts));
         localStorage.setItem('hj_tiktoks', JSON.stringify(tiktoks));
         localStorage.setItem('hj_liked_posts', JSON.stringify([...likedPosts]));
+        localStorage.setItem('hj_reposted_posts', JSON.stringify([...repostedPosts]));
         localStorage.setItem('hj_liked_tiktoks', JSON.stringify([...likedTiktoks]));
     }
 
@@ -502,7 +579,128 @@
         setTimeout(() => heart.remove(), 500);
     }
 
-    // ========== ПОСТЫ ==========
+    // ========== ПОДПИСКИ ==========
+    function followUser(targetEmail) {
+        const current = getCurrentUser();
+        const target = getUserByEmail(targetEmail);
+        if (!current || !target || current.email === targetEmail) return;
+        if (!current.following) current.following = [];
+        if (!target.followers) target.followers = [];
+        if (!current.following.includes(targetEmail)) {
+            current.following.push(targetEmail);
+            target.followers.push(current.email);
+            saveUsers();
+            if (viewingProfileEmail === targetEmail) renderProfile();
+            renderFeed();
+            showAlert(`Вы подписались на ${target.username}`);
+        }
+    }
+
+    function unfollowUser(targetEmail) {
+        const current = getCurrentUser();
+        const target = getUserByEmail(targetEmail);
+        if (!current || !target) return;
+        current.following = (current.following || []).filter(e => e !== targetEmail);
+        target.followers = (target.followers || []).filter(e => e !== current.email);
+        saveUsers();
+        if (viewingProfileEmail === targetEmail) renderProfile();
+        renderFeed();
+    }
+
+    function isFollowing(targetEmail) {
+        const current = getCurrentUser();
+        if (!current) return false;
+        return (current.following || []).includes(targetEmail);
+    }
+
+    // ========== СТОРИС ==========
+    function addStory(mediaUrl, mediaType) {
+        const user = getCurrentUser();
+        if (!user) return;
+        if (!user.stories) user.stories = [];
+        user.stories.unshift({ id: Date.now(), mediaUrl, mediaType, timestamp: Date.now() });
+        // Удаляем старые (>24ч)
+        user.stories = user.stories.filter(s => Date.now() - s.timestamp < 86400000);
+        saveUsers();
+        renderStoriesRow();
+        showAlert("Сторис добавлен!");
+    }
+
+    function renderStoriesRow() {
+        const container = document.getElementById('storiesRow');
+        if (!container) return;
+        const current = getCurrentUser();
+        let html = `<div class="story-item" onclick="openStoryUpload()">
+            <div class="story-circle" style="background: var(--gradient);"><span style="font-size:30px">+</span></div>
+            <span class="story-name">Мой сторис</span>
+        </div>`;
+        
+        // Показываем сторис друзей (подписок)
+        const following = current?.following || [];
+        const friendsWithStories = [];
+        for (const email of following) {
+            const user = getUserByEmail(email);
+            if (user && user.stories && user.stories.length > 0) {
+                friendsWithStories.push(user);
+            }
+        }
+        // Сортируем по свежести
+        friendsWithStories.sort((a,b) => (b.stories?.[0]?.timestamp || 0) - (a.stories?.[0]?.timestamp || 0));
+        
+        for (const user of friendsWithStories) {
+            const latestStory = user.stories[0];
+            html += `<div class="story-item" onclick="viewStories('${user.email}')">
+                <div class="story-circle has-story">${user.avatar ? `<img src="${user.avatar}">` : '👤'}</div>
+                <span class="story-name">${escapeHtml(user.username)}</span>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function openStoryUpload() {
+        document.getElementById('storyModal').classList.add('active');
+    }
+
+    function viewStories(userEmail) {
+        const user = getUserByEmail(userEmail);
+        if (!user || !user.stories || user.stories.length === 0) return;
+        let index = 0;
+        function showStory() {
+            const story = user.stories[index];
+            const container = document.getElementById('storyViewContent');
+            if (story.mediaType === 'image') {
+                container.innerHTML = `<img src="${story.mediaUrl}" style="max-width:100%; max-height:70vh; border-radius:20px">`;
+            } else {
+                container.innerHTML = `<video src="${story.mediaUrl}" autoplay style="max-width:100%; max-height:70vh; border-radius:20px" controls></video>`;
+            }
+            document.getElementById('viewStoryModal').classList.add('active');
+            const timeout = setTimeout(() => {
+                index++;
+                if (index < user.stories.length) showStory();
+                else document.getElementById('viewStoryModal').classList.remove('active');
+            }, 5000);
+            document.getElementById('closeViewStoryBtn').onclick = () => { clearTimeout(timeout); document.getElementById('viewStoryModal').classList.remove('active'); };
+        }
+        showStory();
+    }
+
+    document.getElementById('selectStoryBtn').onclick = () => document.getElementById('storyFileInput').click();
+    document.getElementById('storyFileInput').onchange = (e) => {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { window.pendingStory = ev.target.result; window.pendingStoryType = e.target.files[0].type.startsWith('image') ? 'image' : 'video'; showAlert("Медиа готово!"); };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+    document.getElementById('submitStoryBtn').onclick = () => {
+        if (!window.pendingStory) { showAlert("Выбери фото/видео"); return; }
+        addStory(window.pendingStory, window.pendingStoryType);
+        document.getElementById('storyModal').classList.remove('active');
+        window.pendingStory = null;
+    };
+    document.getElementById('closeStoryModalBtn').onclick = () => document.getElementById('storyModal').classList.remove('active');
+
+    // ========== ПОСТЫ С РЕПОСТАМИ ==========
     function openPostModal() { document.getElementById('postModal').classList.add('active'); }
     function closePostModal() { document.getElementById('postModal').classList.remove('active'); document.getElementById('postContentInput').value = ''; }
 
@@ -510,7 +708,7 @@
         const content = document.getElementById('postContentInput').value.trim();
         if (!content) { showAlert("Напиши что-нибудь"); return; }
         const user = getCurrentUser();
-        posts.unshift({ id: Date.now(), userId: user.email, username: user.username, avatar: user.avatar, content: content, timestamp: new Date().toLocaleString(), likes: 0 });
+        posts.unshift({ id: Date.now(), userId: user.email, username: user.username, avatar: user.avatar, content: content, timestamp: new Date().toLocaleString(), likes: 0, reposts: 0, originalPostId: null });
         saveAppData();
         closePostModal();
         renderFeed();
@@ -525,132 +723,70 @@
         renderFeed();
     }
 
+    function repostPost(id, event) {
+        const original = posts.find(x => x.id == id);
+        if (!original) return;
+        const user = getCurrentUser();
+        if (repostedPosts.has(id)) { showAlert("Вы уже репостнули этот пост"); return; }
+        repostedPosts.add(id);
+        original.reposts++;
+        posts.unshift({ id: Date.now(), userId: user.email, username: user.username, avatar: user.avatar, content: `🔁 Репост: ${original.content.substring(0, 100)}`, timestamp: new Date().toLocaleString(), likes: 0, reposts: 0, originalPostId: id });
+        if (event) showHeartAnimation(event.clientX, event.clientY);
+        saveAppData();
+        renderFeed();
+        showAlert("Репост сделан!");
+    }
+
     function renderFeed() {
         const container = document.getElementById('postsFeed');
         if (!container) return;
         if (!posts.length) { container.innerHTML = '<div style="text-align:center;padding:40px"><button class="btn" id="emptyFeedBtn">📝 ПЕРВЫЙ ПОСТ</button></div>'; document.getElementById('emptyFeedBtn')?.addEventListener('click', openPostModal); return; }
         container.innerHTML = posts.map(p => `
             <div class="post-card">
-                <div class="post-header">
+                <div class="post-header" onclick="viewProfileByEmail('${p.userId}')">
                     <div class="post-avatar">${p.avatar ? `<img src="${p.avatar}">` : '👤'}</div>
                     <div><div class="post-username">${escapeHtml(p.username)}</div><div class="post-time">${p.timestamp}</div></div>
                 </div>
                 <div class="post-content">${escapeHtml(p.content)}</div>
-                <div class="post-actions"><button class="action-btn" onclick="likePost(${p.id}, event)">❤️ ${p.likes}</button></div>
+                <div class="post-stats"><span>❤️ ${p.likes}</span><span>🔁 ${p.reposts}</span></div>
+                <div class="post-actions">
+                    <button class="action-btn" onclick="likePost(${p.id}, event)">❤️ Лайк</button>
+                    <button class="action-btn" onclick="repostPost(${p.id}, event)">🔁 Репост</button>
+                </div>
             </div>
         `).join('');
     }
 
-    // ========== ДЖОНСОН ВИДЕОС (РАБОТАЕТ) ==========
+    // ========== ДЖОНСОН ВИДЕОС ==========
     function renderTiktokFeed() {
         const container = document.getElementById('tiktokContainer');
         if (!container) return;
-        
-        if (!tiktoks.length) {
-            container.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px"><div style="font-size:48px">🎵</div><div style="text-align:center;color:var(--text-secondary)">НЕТ ВИДЕО</div><button class="btn" id="emptyTiktokBtn">➕ ДОБАВИТЬ</button></div>';
-            document.getElementById('emptyTiktokBtn')?.addEventListener('click', openTiktokModal);
-            return;
-        }
-
-        // Создаем слайдер
-        const slider = document.createElement('div');
-        slider.className = 'tiktok-slider';
-        slider.id = 'tiktokSlider';
-        
+        if (!tiktoks.length) { container.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px"><div style="font-size:48px">🎵</div><div style="text-align:center;color:var(--text-secondary)">НЕТ ВИДЕО</div><button class="btn" id="emptyTiktokBtn">➕ ДОБАВИТЬ</button></div>'; document.getElementById('emptyTiktokBtn')?.addEventListener('click', openTiktokModal); return; }
+        const slider = document.createElement('div'); slider.className = 'tiktok-slider'; slider.id = 'tiktokSlider';
         tiktoks.forEach((t, idx) => {
-            const item = document.createElement('div');
-            item.className = 'tiktok-item';
+            const item = document.createElement('div'); item.className = 'tiktok-item';
             item.innerHTML = `
                 <video src="${t.videoUrl}" class="tiktok-video" loop playsinline id="vid_${t.id}"></video>
-                <div class="tiktok-info">
-                    <div class="name">${escapeHtml(t.username)}</div>
-                    <div class="caption">${escapeHtml(t.caption || '')}</div>
-                </div>
-                <div class="tiktok-actions">
-                    <div class="tiktok-action" onclick="event.stopPropagation(); likeTiktok(${t.id}, event)">
-                        <div style="font-size:28px" class="${likedTiktoks.has(t.id) ? 'heart-active' : ''}">${likedTiktoks.has(t.id) ? '❤️' : '♡'}</div>
-                        <div>${t.likes || 0}</div>
-                    </div>
-                </div>
+                <div class="tiktok-info"><div class="name">${escapeHtml(t.username)}</div><div class="caption">${escapeHtml(t.caption || '')}</div></div>
+                <div class="tiktok-actions"><div class="tiktok-action" onclick="event.stopPropagation(); likeTiktok(${t.id}, event)"><div style="font-size:28px" class="${likedTiktoks.has(t.id) ? 'heart-active' : ''}">${likedTiktoks.has(t.id) ? '❤️' : '♡'}</div><div>${t.likes || 0}</div></div></div>
             `;
             slider.appendChild(item);
         });
-        
-        container.innerHTML = '';
-        container.appendChild(slider);
-        
-        // Устанавливаем позицию
+        container.innerHTML = ''; container.appendChild(slider);
         updateTiktokPosition();
-        
-        // Воспроизводим текущее видео
-        setTimeout(() => {
-            pauseAllVideos();
-            playCurrentVideo();
-            attachVideoClickHandlers();
-        }, 100);
-        
+        setTimeout(() => { pauseAllVideos(); playCurrentVideo(); attachVideoClickHandlers(); }, 100);
         setupTiktokSwipe();
     }
 
-    function updateTiktokPosition() {
-        const slider = document.getElementById('tiktokSlider');
-        if (slider) slider.style.transform = `translateY(-${currentTiktokIndex * 100}%)`;
-    }
-
-    function pauseAllVideos() {
-        document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
-    }
-
-    function playCurrentVideo() {
-        if (!tiktoks.length || currentTiktokIndex >= tiktoks.length) return;
-        const video = document.getElementById(`vid_${tiktoks[currentTiktokIndex].id}`);
-        if (video) video.play().catch(e => console.log('play error', e));
-    }
-
-    function attachVideoClickHandlers() {
-        document.querySelectorAll('.tiktok-video').forEach(video => {
-            video.onclick = (e) => {
-                e.stopPropagation();
-                if (video.paused) {
-                    video.play();
-                    showPauseIndicator('▶️');
-                } else {
-                    video.pause();
-                    showPauseIndicator('⏸️');
-                }
-            };
-        });
-    }
-
-    function showPauseIndicator(icon) {
-        let ind = document.getElementById('pauseIndicator');
-        if (!ind) {
-            ind = document.createElement('div');
-            ind.id = 'pauseIndicator';
-            ind.style.position = 'fixed';
-            ind.style.top = '50%';
-            ind.style.left = '50%';
-            ind.style.transform = 'translate(-50%, -50%)';
-            ind.style.fontSize = '60px';
-            ind.style.background = 'rgba(0,0,0,0.7)';
-            ind.style.borderRadius = '80px';
-            ind.style.padding = '20px';
-            ind.style.zIndex = '1000';
-            ind.style.pointerEvents = 'none';
-            document.body.appendChild(ind);
-        }
-        ind.innerHTML = icon;
-        ind.style.display = 'flex';
-        setTimeout(() => { ind.style.display = 'none'; }, 400);
-    }
-
+    function updateTiktokPosition() { const slider = document.getElementById('tiktokSlider'); if (slider) slider.style.transform = `translateY(-${currentTiktokIndex * 100}%)`; }
+    function pauseAllVideos() { document.querySelectorAll('.tiktok-video').forEach(v => v.pause()); }
+    function playCurrentVideo() { if (!tiktoks.length || currentTiktokIndex >= tiktoks.length) return; const video = document.getElementById(`vid_${tiktoks[currentTiktokIndex].id}`); if (video) video.play().catch(e => console.log()); }
+    function attachVideoClickHandlers() { document.querySelectorAll('.tiktok-video').forEach(video => { video.onclick = (e) => { e.stopPropagation(); if (video.paused) video.play(); else video.pause(); }; }); }
     function setupTiktokSwipe() {
         const container = document.getElementById('tiktokContainer');
         if (!container) return;
-        
         const newContainer = container.cloneNode(true);
         container.parentNode.replaceChild(newContainer, container);
-        
         newContainer.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: false });
         newContainer.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
         newContainer.addEventListener('touchend', (e) => {
@@ -668,13 +804,8 @@
     function likeTiktok(id, event) {
         const t = tiktoks.find(x => x.id == id);
         if (likedTiktoks.has(id)) { likedTiktoks.delete(id); t.likes--; }
-        else { 
-            likedTiktoks.add(id); 
-            t.likes++;
-            if (event) { const rect = event.target.getBoundingClientRect(); showHeartAnimation(rect.left + rect.width/2, rect.top + rect.height/2); }
-        }
-        saveAppData();
-        renderTiktokFeed();
+        else { likedTiktoks.add(id); t.likes++; if (event) { const rect = event.target.getBoundingClientRect(); showHeartAnimation(rect.left + rect.width/2, rect.top + rect.height/2); } }
+        saveAppData(); renderTiktokFeed();
     }
 
     function openTiktokModal() { document.getElementById('tiktokModal').classList.add('active'); }
@@ -691,83 +822,76 @@
     document.getElementById('submitTiktokBtn').onclick = () => {
         if (!window.pendingVideo) { showAlert("Выбери видео"); return; }
         const user = getCurrentUser();
-        tiktoks.unshift({
-            id: Date.now(),
-            userId: user.email,
-            username: user.username,
-            avatar: user.avatar,
-            videoUrl: window.pendingVideo,
-            caption: document.getElementById('tiktokCaptionInput').value,
-            likes: 0
-        });
-        saveAppData();
-        closeTiktokModal();
-        currentTiktokIndex = 0;
-        renderTiktokFeed();
-        renderProfile();
-        if (currentPage === 'tiktok') switchPage('tiktok');
+        tiktoks.unshift({ id: Date.now(), userId: user.email, username: user.username, avatar: user.avatar, videoUrl: window.pendingVideo, caption: document.getElementById('tiktokCaptionInput').value, likes: 0 });
+        saveAppData(); closeTiktokModal(); currentTiktokIndex = 0; renderTiktokFeed(); renderProfile(); if (currentPage === 'tiktok') switchPage('tiktok');
     };
 
     // ========== ПРОФИЛЬ ==========
+    function viewProfileByEmail(email) {
+        viewingProfileEmail = email;
+        renderProfile();
+        switchPage('profile');
+    }
+
     function renderProfile() {
-        const user = getCurrentUser();
+        const user = viewingProfileEmail ? getUserByEmail(viewingProfileEmail) : getCurrentUser();
         if (!user) return;
+        const current = getCurrentUser();
+        const isOwnProfile = current?.email === user.email;
+        const following = isFollowing(user.email);
         document.getElementById('profileContent').innerHTML = `
             <div class="profile-header">
-                <div class="profile-avatar-large" id="profileAvatarClick">
-                    ${user.avatar ? `<img src="${user.avatar}">` : '👤'}
-                </div>
+                <div class="profile-avatar-large" id="profileAvatarClick">${user.avatar ? `<img src="${user.avatar}">` : '👤'}</div>
                 <h3 class="glitch-text">${escapeHtml(user.username)}</h3>
                 <div class="profile-stats">
-                    <div><div class="stat-value">${tiktoks.filter(t => t.userId === user.email).length}</div><div>ВИДЕО</div></div>
-                    <div><div class="stat-value">${posts.filter(p => p.userId === user.email).length}</div><div>ПОСТОВ</div></div>
-                    <div><div class="stat-value">${user.friends?.length || 0}</div><div>ДРУЗЕЙ</div></div>
+                    <div class="profile-stats-item" onclick="showFollowers('${user.email}')"><div class="stat-value">${user.followers?.length || 0}</div><div class="stat-label">ПОДПИСЧИКОВ</div></div>
+                    <div class="profile-stats-item" onclick="showFollowing('${user.email}')"><div class="stat-value">${user.following?.length || 0}</div><div class="stat-label">ПОДПИСОК</div></div>
+                    <div><div class="stat-value">${posts.filter(p => p.userId === user.email).length}</div><div class="stat-label">ПОСТОВ</div></div>
+                    <div><div class="stat-value">${tiktoks.filter(t => t.userId === user.email).length}</div><div class="stat-label">ВИДЕО</div></div>
                 </div>
-                <button class="btn" id="editProfileBtn">✏️ СМЕНИТЬ НИК</button>
+                ${!isOwnProfile ? `<button class="follow-btn" onclick="${following ? 'unfollowUser' : 'followUser'}('${user.email}')">${following ? 'ОТПИСАТЬСЯ' : 'ПОДПИСАТЬСЯ'}</button>` : `<button class="btn" id="editProfileBtn">✏️ РЕДАКТИРОВАТЬ</button>`}
             </div>
             <div class="profile-tabs">
-                <div class="profile-tab ${currentProfileTab === 'posts' ? 'active' : ''}" data-tab="posts">📝 МОИ ПОСТЫ</div>
-                <div class="profile-tab ${currentProfileTab === 'tiktoks' ? 'active' : ''}" data-tab="tiktoks">🎵 МОИ ВИДЕО</div>
+                <div class="profile-tab ${currentProfileTab === 'posts' ? 'active' : ''}" data-tab="posts">📝 ПОСТЫ</div>
+                <div class="profile-tab ${currentProfileTab === 'tiktoks' ? 'active' : ''}" data-tab="tiktoks">🎵 ВИДЕО</div>
             </div>
             <div id="profileTabContent"></div>
         `;
-        document.getElementById('profileAvatarClick')?.addEventListener('click', () => document.getElementById('avatarInput').click());
-        document.getElementById('editProfileBtn')?.addEventListener('click', () => document.getElementById('editUsernameModal').classList.add('active'));
+        if (isOwnProfile) {
+            document.getElementById('profileAvatarClick')?.addEventListener('click', () => document.getElementById('avatarInput').click());
+            document.getElementById('editProfileBtn')?.addEventListener('click', () => document.getElementById('editUsernameModal').classList.add('active'));
+        }
         document.querySelectorAll('.profile-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 currentProfileTab = tab.dataset.tab;
-                renderProfileTab();
+                renderProfileTabContent(user);
                 document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
             });
         });
-        renderProfileTab();
+        renderProfileTabContent(user);
     }
 
-    function renderProfileTab() {
-        const user = getCurrentUser();
+    function renderProfileTabContent(user) {
         const container = document.getElementById('profileTabContent');
         if (!container) return;
         if (currentProfileTab === 'posts') {
-            const up = posts.filter(p => p.userId === user.email);
-            if (!up.length) { container.innerHTML = '<div style="text-align:center;padding:40px">📭 НЕТ ПОСТОВ</div>'; return; }
-            container.innerHTML = up.map(p => `<div class="post-card"><div class="post-content">${escapeHtml(p.content)}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:8px">❤️ ${p.likes} • ${p.timestamp}</div></div>`).join('');
+            const userPosts = posts.filter(p => p.userId === user.email);
+            if (!userPosts.length) { container.innerHTML = '<div style="text-align:center;padding:40px">📭 НЕТ ПОСТОВ</div>'; return; }
+            container.innerHTML = userPosts.map(p => `<div class="post-card"><div class="post-content">${escapeHtml(p.content)}</div><div class="post-stats"><span>❤️ ${p.likes}</span><span>🔁 ${p.reposts}</span></div><div style="font-size:11px;color:var(--text-secondary);margin-top:8px">${p.timestamp}</div></div>`).join('');
         } else {
-            const ut = tiktoks.filter(t => t.userId === user.email);
-            if (!ut.length) { container.innerHTML = '<div style="text-align:center;padding:40px">🎵 НЕТ ВИДЕО</div>'; return; }
-            container.innerHTML = ut.map(t => `<div style="background:var(--card);border-radius:16px;margin-bottom:12px;padding:12px;display:flex;gap:12px;align-items:center"><video src="${t.videoUrl}" style="width:70px;height:90px;border-radius:12px;object-fit:cover"></video><div><div>${escapeHtml(t.caption || 'без описания')}</div><div style="font-size:11px;color:var(--text-secondary)">❤️ ${t.likes}</div></div></div>`).join('');
+            const userTiktoks = tiktoks.filter(t => t.userId === user.email);
+            if (!userTiktoks.length) { container.innerHTML = '<div style="text-align:center;padding:40px">🎵 НЕТ ВИДЕО</div>'; return; }
+            container.innerHTML = userTiktoks.map(t => `<div style="background:var(--card);border-radius:16px;margin-bottom:12px;padding:12px;display:flex;gap:12px;align-items:center"><video src="${t.videoUrl}" style="width:70px;height:90px;border-radius:12px;object-fit:cover"></video><div><div>${escapeHtml(t.caption || 'без описания')}</div><div style="font-size:11px;color:var(--text-secondary)">❤️ ${t.likes}</div></div></div>`).join('');
         }
     }
 
+    function showFollowers(email) { const user = getUserByEmail(email); if (user?.followers?.length) showAlert(`Подписчики: ${user.followers.map(f => getUserByEmail(f)?.username).join(', ')}`); else showAlert("Нет подписчиков"); }
+    function showFollowing(email) { const user = getUserByEmail(email); if (user?.following?.length) showAlert(`Подписки: ${user.following.map(f => getUserByEmail(f)?.username).join(', ')}`); else showAlert("Нет подписок"); }
+
     function changeAvatar() {
         const inp = document.getElementById('avatarInput');
-        inp.onchange = (e) => {
-            if (e.target.files[0]) {
-                const r = new FileReader();
-                r.onload = (ev) => { updateUserData({ avatar: ev.target.result }); renderProfile(); renderFeed(); };
-                r.readAsDataURL(e.target.files[0]);
-            }
-        };
+        inp.onchange = (e) => { if (e.target.files[0]) { const r = new FileReader(); r.onload = (ev) => { updateUserData({ avatar: ev.target.result }); if (viewingProfileEmail === getCurrentUser()?.email) renderProfile(); renderFeed(); }; r.readAsDataURL(e.target.files[0]); } };
         inp.click();
     }
 
@@ -776,22 +900,14 @@
         if (!n || n.length < 3) { showAlert("Ник минимум 3 символа"); return; }
         updateUserData({ username: n });
         document.getElementById('editUsernameModal').classList.remove('active');
-        renderProfile(); renderFeed(); renderTiktokFeed();
+        if (viewingProfileEmail === getCurrentUser()?.email) renderProfile();
+        renderFeed(); renderTiktokFeed();
     }
 
     // ========== ЛИЧКА ==========
     function renderDM() {
         const user = getCurrentUser();
-        document.getElementById('dmContent').innerHTML = `
-            <div id="dmFriendsList"></div>
-            <div class="dm-chat-area">
-                <div class="dm-messages-list" id="dmMessagesList"></div>
-                <div class="dm-input-area">
-                    <input type="text" id="dmMessageInput" placeholder="Сообщение...">
-                    <button class="btn" id="dmSendBtn">📨</button>
-                </div>
-            </div>
-        `;
+        document.getElementById('dmContent').innerHTML = `<div id="dmFriendsList"></div><div class="dm-chat-area"><div class="dm-messages-list" id="dmMessagesList"></div><div class="dm-input-area"><input type="text" id="dmMessageInput" placeholder="Сообщение..."><button class="btn" id="dmSendBtn">📨</button></div></div>`;
         let html = `<button class="btn" style="width:100%;margin-bottom:8px" id="searchFriendBtn">➕ НАЙТИ ДРУГА</button>`;
         if (user.friendRequests?.length) {
             html += `<div style="padding:8px;background:var(--card);border-radius:16px;margin-bottom:8px"><strong>📨 ЗАЯВКИ:</strong>`;
@@ -812,8 +928,7 @@
         if (user.friends?.includes(username)) { showAlert("Уже друг"); return; }
         if (user.friendRequests?.includes(username)) { showAlert("Заявка уже отправлена"); return; }
         updateUserData({ friendRequests: [...(user.friendRequests || []), username] });
-        renderDM();
-        showAlert(`Заявка отправлена ${username}`);
+        renderDM(); showAlert(`Заявка отправлена ${username}`);
     }
 
     function acceptFriend(username) {
@@ -829,7 +944,6 @@
     }
 
     function openDm(friend) { selectedDmFriend = friend; renderDmChat(); }
-    
     function sendDm() {
         const user = getCurrentUser();
         if (!selectedDmFriend) { showAlert("Выбери друга"); return; }
@@ -874,9 +988,15 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.getElementById(`${pageId}Page`).classList.add('active-page');
         document.querySelectorAll('.nav-item').forEach(item => { if (item.dataset.page === pageId) item.classList.add('active'); else item.classList.remove('active'); });
+        
+        // Управление плавающим кружочком
+        const fab = document.getElementById('fabBtn');
+        if (pageId === 'tiktok') fab.classList.add('hidden');
+        else fab.classList.remove('hidden');
+        
         if (pageId === 'tiktok') { currentTiktokIndex = 0; renderTiktokFeed(); }
-        if (pageId === 'feed') renderFeed();
-        if (pageId === 'profile') renderProfile();
+        if (pageId === 'feed') { renderFeed(); renderStoriesRow(); }
+        if (pageId === 'profile') { viewingProfileEmail = null; renderProfile(); }
         if (pageId === 'dm') renderDM();
         if (pageId === 'settings') renderSettings();
     }
@@ -887,7 +1007,6 @@
     // ========== ЗАПУСК ==========
     document.addEventListener('DOMContentLoaded', () => {
         applyTheme(currentTheme);
-        
         if (currentSession && users[currentSession]) {
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('appContainer').classList.add('active');
@@ -899,7 +1018,6 @@
         
         document.getElementById('showRegBtn').onclick = () => { document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('regOverlay').classList.remove('hidden'); };
         document.getElementById('backToLoginBtn').onclick = () => { document.getElementById('regOverlay').classList.add('hidden'); document.getElementById('loginOverlay').classList.remove('hidden'); };
-        
         document.getElementById('doLoginBtn').onclick = () => {
             const err = login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
             if (err) { document.getElementById('loginError').innerText = err; return; }
@@ -907,7 +1025,6 @@
             document.getElementById('appContainer').classList.add('active');
             switchPage('feed');
         };
-        
         document.getElementById('doRegBtn').onclick = () => {
             const err = register(document.getElementById('regEmail').value, document.getElementById('regUsername').value, document.getElementById('regPassword').value);
             if (err) { document.getElementById('regError').innerText = err; return; }
@@ -920,7 +1037,7 @@
         };
         
         document.getElementById('fabBtn').onclick = openPostModal;
-        document.getElementById('topProfileBtn').onclick = () => switchPage('profile');
+        document.getElementById('topProfileBtn').onclick = () => { viewingProfileEmail = null; switchPage('profile'); };
         document.getElementById('topSettingsBtn').onclick = () => switchPage('settings');
         document.getElementById('submitPostBtn').onclick = createPost;
         document.getElementById('closePostModalBtn').onclick = () => document.getElementById('postModal').classList.remove('active');
@@ -928,7 +1045,7 @@
         document.getElementById('saveUsernameBtn').onclick = saveUsername;
         document.getElementById('closeUsernameModalBtn').onclick = () => document.getElementById('editUsernameModal').classList.remove('active');
         document.getElementById('alertCloseBtn').onclick = () => document.getElementById('alertModal').classList.remove('active');
-        document.getElementById('avatarInput').onchange = (e) => { if (e.target.files[0]) { const r = new FileReader(); r.onload = (ev) => { updateUserData({ avatar: ev.target.result }); renderProfile(); renderFeed(); }; r.readAsDataURL(e.target.files[0]); } };
+        document.getElementById('avatarInput').onchange = (e) => { if (e.target.files[0]) { const r = new FileReader(); r.onload = (ev) => { updateUserData({ avatar: ev.target.result }); if (viewingProfileEmail === getCurrentUser()?.email) renderProfile(); renderFeed(); }; r.readAsDataURL(e.target.files[0]); } };
         
         document.querySelectorAll('.nav-item').forEach(el => { el.addEventListener('click', () => switchPage(el.dataset.page)); });
     });
